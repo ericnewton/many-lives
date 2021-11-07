@@ -1,5 +1,5 @@
 #! /bin/bash
-for dir in c++ clojure java python scala ; do
+for dir in c++ clojure haskell java javascript python scala ; do
   echo '***********'
   echo "${dir}"
   echo '***********'

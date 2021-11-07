@@ -108,7 +108,7 @@
       (show board)
       (if (< gen generations)
         (recur (next-generation board) (inc gen))))
-    (println (/ generations (- (now) start-time)))))
+    (println (/ generations (- (now) start-time)) "generations / sec")))
 
 (defn -main
   "Play the game of life"

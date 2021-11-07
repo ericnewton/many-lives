@@ -8,61 +8,45 @@
 
 using namespace std;
 
-/*
- * The goal is to use immutable data structures.  However, to support
- *
- * board = nextGeneration(board)
- *
- * The type Board has to support operator=, which means all the types in
- * Board need an operator=, which means i can just slap const on everything.
- * So I've written accessors that don't let you do anything to the types but
- * read them.
- *
- * Let the copious boilerplate production begin...
- */
+namespace life {
 
-class Position {
-private:
-  // I forgot the member data and member methods share the same
-  // namespace. So, name members with awkward "m_" prefixes.
-  int m_x, m_y;
-public:
-  // if we use set, which is ordered
+struct Position {
+  int x, y;
+  // if we put Position in a set, define an order:
   bool operator<(const Position & b) const {
-    if (m_x == b.m_x) {
-      return m_y < b.m_y;
+    if (x == b.x) {
+      return y < b.y;
     }
-    return m_x < b.m_x;
+    return x < b.x;
   }
-  // if we use unordered set
+  // if we use unordered_set, define equality
   bool operator==(const Position & b) const {
-    return m_x == b.m_x && m_y == b.m_y;
+    return x == b.x && y == b.y;
   }
-  Position(int x, int y) : m_x(x), m_y(y) {}
-  Position(const Position & p) : m_x(p.m_x), m_y(p.m_y) {}
-  int x() const {
-    return m_x;
-  }
-  int y() const {
-    return m_y;
-  }
+  Position(int x, int y) : x(x), y(y) {}
+  Position(const Position & p) : x(p.x), y(p.y) {}
+};
+struct CompareX {
+  bool operator()(const Position & a, const Position & b) const { return a.x < b.x; }
+};
+struct CompareY {
+  bool operator()(const Position & a, const Position & b) const { return a.y < b.y; }
 };
 
 struct Hash {
   size_t operator()(const Position &position) const {
-    return position.x() * 65521 + position.y();
+    return position.x * 65521 + position.y;
   }
 };
 
 // for debugging
 ostream & operator<<(ostream &ostr, const Position & p) {
-  ostr << "(" << p.x() << ", " << p.y() << ")";
+  ostr << "(" << p.x << ", " << p.y << ")";
   return ostr;
 }
 
-enum How { Live, Die, None };
+enum How { Live, Die, Unchanged };
 
-// I forgot c++ doesn't provide a conversion from enum to string
 ostream & operator<<(ostream &ostr, How how) {
   switch (how) {
   case Live:
@@ -71,70 +55,61 @@ ostream & operator<<(ostream &ostr, How how) {
   case Die:
     cout << "Die";
     break;
-  case None:
-    cout << "None";
+  case Unchanged:
+    cout << "Unchanged";
     break;
   }
   return ostr;
 }
 
-class Change {
-private:
-  How m_how;
-  Position m_position;
-public:
-  Change(How how, const Position & pos) : m_how(how), m_position(pos) {}
-  How how() const { return m_how; }
-  const Position & position() const {
-    return m_position;
-  }
+struct Change {
+  How how;
+  Position position;
+  Change(How how, const Position & pos) : how(how), position(pos) {}
 };
-// in other languages we use Option(al) or None, or nil, etc.  Make our own placeholder:
-const Change DoNothing(None, Position(0, 0));
+
+const Change DoNothing(Unchanged, Position(0, 0));
+
 // more debugging
 ostream & operator<<(ostream &ostr, const Change & c) {
-  ostr << "how=" << c.how() << ", position=" << c.position();
+  ostr << "how=" << c.how << ", position=" << c.position;
   return ostr;
 }
 
+// Hashed sets are about 12% faster for me
 typedef unordered_set<Position, Hash> Positions;
-// typedef set<Position> Positions;
+//typedef set<Position> Positions;
 
-class Board {
-private:
-  Positions m_alive;
-  vector<Change> m_updates;
-public:
+struct Board {
+  const Positions alive;
+  const vector<Change> updates;
+
   Board(const Positions & alive,
 	const vector<Change> & updates)
-    : m_alive(alive),
-      m_updates(updates)
+    : alive(alive),
+      updates(updates)
   {
-  }
-  const Positions & alive() const {
-    return m_alive;
-  }
-  const vector<Change> & updates() const {
-    return m_updates;
   }
 };
 
 // debugging
 ostream & operator<<(ostream &ostr, const Board & b) {
   ostr << "alive=";
-  for (auto each : b.alive()) {
-    ostr << each << ", ";
+  string sep = "";
+  for (auto each : b.alive) {
+    ostr << sep << each;
+    sep = ", ";
   }
   ostr << "updates=";
-  for (auto each : b.updates()) {
-    ostr << each << ", ";
+  sep = "";
+  for (auto each : b.updates) {
+    ostr << sep << each;
+    sep = ", ";
   }
   return ostr;
  }
 
-Position p(int x, int y) {
-  return Position(x, y);
-}
+Position p(int x, int y) { return Position(x, y); }
 const Position r_pentomino[] = {
   p(0, 0), p(0, 1), p(1, 1), p(-1, 0), p(0, -1)
 };
@@ -147,38 +122,23 @@ void clearScreen() {
 }
 
 pair<Position, Position> boundBox(const Board & board) {
-  const Positions lst = board.alive();
+  const Positions & lst = board.alive;
   if (lst.empty()) {
     return make_pair(Position(0,0), Position(1,1));
   }
-  // for the love of turing why isn't this easier?
-  // (didn't want to create a mutable Position)
-  auto i = lst.begin();
-  int minx = i->x();
-  int miny = i->y();
-  int maxx = minx;
-  int maxy = miny;
-  i++;
-  for (; i != lst.end(); i++) {
-    minx = min(minx, i->x());
-    maxx = max(maxx, i->x());
-    miny = min(miny, i->y());
-    maxy = max(maxy, i->y());
-  }
-  return make_pair(Position(minx, miny), Position(maxx, maxy));;
+  auto mmx = minmax_element(lst.begin(), lst.end(), CompareX());
+  auto mmy = minmax_element(lst.begin(), lst.end(), CompareY());
+  return make_pair(Position(mmx.first->x, mmy.first->y),
+		   Position(mmx.second->x, mmy.second->y));
 }
 
 void printBoard(const Board & board) {
-  auto pr = boundBox(board);
-  const Position & min = pr.first;
-  const Position & max = pr.second;
-  for (int y = max.y(); y >= min.y(); y--) {
-    for(int x = min.x(); x <= max.x(); x++) {
-      char symbol = ' ';
-      if (board.alive().count(Position(x, y))) {
-	symbol = '@';
-      }
-      cout << symbol;
+  auto bb = boundBox(board);
+  auto min = bb.first;
+  auto max = bb.second;
+  for (auto y = max.y; y >= min.y; y--) {
+    for(auto x = min.x; x <= max.x; x++) {
+      cout << (board.alive.count(Position(x, y)) ? '@' : ' ');
     }
     cout << endl;
   }
@@ -191,10 +151,10 @@ Positions applyUpdates(const Positions & alive,
   // do it this way in c++
   Positions result(alive);
   for (auto & change : updates) {
-    if (change.how() == Die) {
-      result.erase(change.position());
-    } else if (change.how() == Live) {
-      result.insert(change.position());
+    if (change.how == Die) {
+      result.erase(change.position);
+    } else if (change.how == Live) {
+      result.insert(change.position);
     }
   }
   return result;
@@ -211,8 +171,8 @@ const int OFFSETS[][2] = {
 vector<Position> eight(const Position & position) {
   vector<Position> result;
   for (int i = 0; i < sizeof(OFFSETS)/sizeof(OFFSETS[0]); i++) {
-    result.push_back(Position(position.x() + OFFSETS[i][0],
-			      position.y() + OFFSETS[i][1]));
+    result.push_back(Position(position.x + OFFSETS[i][0],
+			      position.y + OFFSETS[i][1]));
   }
   return result;
 }
@@ -221,7 +181,7 @@ vector<Position> eight(const Position & position) {
 Positions neighbors(const vector<Change> & changes) {
   Positions result;
   for (auto & change : changes) {
-    for (auto & pos : eight(change.position())) {
+    for (auto & pos : eight(change.position)) {
       result.insert(pos);
     }
   }
@@ -256,7 +216,7 @@ vector<Change> computeChanges(const Positions & alive,
   vector<Change> result;
   for (auto & pos : affected) {
     Change c = change(alive, pos);
-    if (c.how() != None) {
+    if (c.how != Unchanged) {
       result.push_back(c);
     }
   }
@@ -264,20 +224,24 @@ vector<Change> computeChanges(const Positions & alive,
 }
 
 // compute a new board from the old board
-Board nextGeneration(const Board & board) {
+auto_ptr<Board> nextGeneration(const Board & board) {
   // this came out nicer than I was expecting
-  auto alive = applyUpdates(board.alive(), board.updates());
-  auto affected = neighbors(board.updates());
+  auto alive = applyUpdates(board.alive, board.updates);
+  auto affected = neighbors(board.updates);
   auto updates = computeChanges(alive, affected);
-  return Board(alive, updates);
+  return auto_ptr<Board>(new Board(alive, updates));
 }
+
+} // namespace life
+
+using namespace life;
 
 int main(int argc, char **argv) {
   vector<Change> start;
   for (int i = 0; i < sizeof(r_pentomino) / sizeof(r_pentomino[0]); i++) {
     start.push_back(Change(Live, r_pentomino[i]));
   }
-  Board board(Positions(), start);
+  auto_ptr<const Board> board(new Board(Positions(), start));
   const auto generations = 1000;
   const auto showWork = false;
   const auto times = 5;
@@ -285,10 +249,10 @@ int main(int argc, char **argv) {
   for (int time = 0; time < times; time++) {
     auto start = std::chrono::system_clock::now();
     for(int i = 0; i < generations; i++) {
-      board = nextGeneration(board);
+      board = nextGeneration(*board);
       if (showWork) {
 	clearScreen();
-	printBoard(board);
+	printBoard(*board);
 	this_thread::sleep_for(human_speed);
       }
     }

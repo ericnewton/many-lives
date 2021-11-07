@@ -1,3 +1,8 @@
 target/
 *~
 c++/life
+c++/life.dSYM
+*.o
+*.hi
+javascript/node_modules
+javascript/package*
