@@ -1,5 +1,4 @@
-Life in many languages
-==
+# Life in many languages
 
 I've become interested in functional programming. Growing numbers of
 processors and use of multithreaded designs makes sticking with
@@ -12,10 +11,10 @@ explore functional programming techniques, and Clojure in
 particular. I picked a small programming problem, Conway's Game of
 Life, as mechanism to explore the language.
 
-Life [1] can be written to use some non-trivial data structures, but
-it is a smallish task that can be completed on a long plane ride. I
-thought I would play with it to see how easy Clojure was to use
-different algorithms.
+[Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) can be
+written to use some non-trivial data structures, but it is a smallish
+task that can be completed on a long plane ride. I thought I would
+play with it to see how easy Clojure was to use different algorithms.
 
 Once I had written 4 different versions of the game in Clojure, I
 thought it had reasonable performance, but wanted to compare the
@@ -27,8 +26,8 @@ I have some thoughts. These my be construed as opinion, and your
 experience may vary. In most of these languages, I'm a novice, or I
 haven't used the language in years. 
 
-The Algorithm
-==
+## The Algorithm
+
 
 The implementation of Life uses a Set to represent the sparse array of cells
 that are alive in any one generation. The set of changes for the next
@@ -40,8 +39,7 @@ work.
 The algorithm itself is parallizable while computing the change
 list.
 
-Performance
-==
+## Performance
 
 See the measurements below, but keep in mind that performance could
 likely be improved in each language. If there's something really
@@ -63,27 +61,32 @@ Here are some numbers from my laptop, a 2020 M1 Macbook. The number
 provided here is generations per second for a particular pattern to
 run for 1000 generations.
 
-C++         8928
-Clojure     1438
-Haskell     1139
-Java       10000
-Javascript   359
-Python      3244
-Scala       9708
+Language  | Generations/sec
+--------- | -------------
+C++       |  8928
+Clojure   |  1438
+Haskell   |  1139
+Java      | 10000
+Javascript|   359
+Python    |  3244
+Scala     |  9708
 
-The reported value is the second fastest of 5 runs [2]. In most cases this
+The reported value is the second fastest of 5 runs . In most cases this
 was also the fastest value as well.
 
-The Experience
-==
+*OMG, haskell is a pain to benchmark. The reported value is an
+average of 5 runs.*
+
+
+## The Experience
 
 Again, with the caveat that this was a small programming exercise and
-that I'm only really comfortable programming in 2 of the 5 languages,
+that I'm only really comfortable programming in 2 of the 7 languages,
 there was a great variation in the time and effort needed to write
 each version.
 
-Clojure
---
+### Clojure
+
 
 I started with Clojure and wrote at least 4 different versions of
 Life. It's hard to say how long this version would have taken if I
@@ -101,7 +104,7 @@ to diagnose. I would resort to typing in small bits of code to slowly
 build up to the expression I thought would work. By tweaking small
 bits of the expression, I could usually figure out what was going on.
 
-I started using *parinfer* mode in Atom, and that was a very nice
+I started using *Parinfer* mode in Atom, and that was a very nice
 experience. It simplified the task of typing matching brackets and
 parenthesis, so much so that I hardly thought about it at all. I also
 used Emacs and Clojure mode, which also worked just fine.
@@ -116,8 +119,7 @@ program, make changes, re-run it, update dependencies, etc.
 I *liked* the fact that it was easiest to write in a functional style.
 I learned a lot, which was my goal.
 
-Scala
---
+### Scala
 
 A friend recommended Scala as an alternative way to get to functional
 programming within the JVM ecosystem. It also supports strong typing,
@@ -163,8 +165,7 @@ Even with copious references to online documentation, I had the Scala
 version running in a couple hours, starting with downloading Scala3,
 IntelliJ, etc.
 
-Java
---
+### Java
 
 This is the language I use every day for work. There were no suprises
 here: I could write Java quickly. I used IntelliJ even though I was
@@ -184,8 +185,7 @@ lein and sbt have learned lessons and built a newbie friendly
 build/dependency management infrastructure.
 
 
-Python
---
+### Python
 
 I've been using Python for a long time, and use it for small tasks at
 work.  It was the easiest and shortest implementation. It was very
@@ -200,9 +200,7 @@ small program like Life.
 I attempted to switch from using tuples for small data types to
 `namedtuples` to improve readability, but performance suffered.
 
-
-C++
---
+### C++
 
 I've not programmed professionally in C++ for years. It was a struggle
 to re-learn all the little idiosyncracies of the language as I cobbled
@@ -262,8 +260,7 @@ unlikely to provide performance improvements with multithreading, and
 the nature of the problem does not lend itself to other ways of making
 Python programs execute in parallel.
 
-Haskell
---
+### Haskell
 
 If you're going to try functional programming, why not go all the way
 with a pure functional language like Haskell? If I thought I struggled
@@ -282,14 +279,13 @@ snippits into the interactive prompt to get results.
 There was a moment when I was unable to reproduce the working code
 from the interactive environment in the compiled environment. It
 appears to be well-known difference since I was able to find a
-StackOverflow article about it right away [3].
+[StackOverflow article](https://stackoverflow.com/questions/3327532/haskell-pattern-matching-on-the-empty-set/3327561) about it right away.
 
 I attempted to compile and run the Haskell version using multiple
 CPUs, but the performance decreased, so I have that disabled in the
 reported numbers.
 
-Javascript
---
+### Javascript
 
 Javascript seems to go out of its way to be non-functional.  The Life
 algorithm I chose is heavily dependent on Sets, to eliminate duplicate
@@ -305,10 +301,5 @@ sleep to wait between generations when trying to view the
 output. Instead, async calls to a callback are made on a timer.
 
 
-[1] https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
 
-[2] OMG, haskell is a pain to benchmark. The reported value is an
-average of 5 runs.
-
-[3] https://stackoverflow.com/questions/3327532/haskell-pattern-matching-on-the-empty-set/3327561
 
