@@ -65,6 +65,7 @@ Language  | Generations/sec
 --------- | -------------
 C++       |  8928
 Clojure   |  1438
+Go        |  1560
 Haskell   |  1139
 Java      | 10000
 Javascript|   359
@@ -300,6 +301,22 @@ Interestingly, Javascript is the only runtime that didn't support
 sleep to wait between generations when trying to view the
 output. Instead, async calls to a callback are made on a timer.
 
+### Go
 
+Go seems to be actively hostile to a functional style, and the
+implementation of Life reflects this.
 
+There's no built-in `Set` and the advice online seems to encourage you
+to use a Map to implement your `Set`.  I grabbed one from a library.
+
+There's no map() implementation, so there are a lot of for loops in
+the code.  There's no templates or generic/parametric typing so
+anything that comes out of the Set has to be type asserted back to the
+underlying value type.
+
+I think there might be some fun in trying to parallelize the code
+using language-specific features. May need to revisit this.
+
+Performance was disappointing, but perhaps I'm doing something naive
+and wasteful.
 
