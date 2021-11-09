@@ -170,7 +170,7 @@ const int OFFSETS[][2] = {
 // generate the eight neighbor positions of a given position
 vector<Position> eight(const Position & position) {
   vector<Position> result;
-  for (int i = 0; i < sizeof(OFFSETS)/sizeof(OFFSETS[0]); i++) {
+  for (size_t i = 0; i < sizeof(OFFSETS)/sizeof(OFFSETS[0]); i++) {
     result.push_back(Position(position.x + OFFSETS[i][0],
 			      position.y + OFFSETS[i][1]));
   }
@@ -224,12 +224,12 @@ vector<Change> computeChanges(const Positions & alive,
 }
 
 // compute a new board from the old board
-auto_ptr<Board> nextGeneration(const Board & board) {
+unique_ptr<Board> nextGeneration(const Board & board) {
   // this came out nicer than I was expecting
   auto alive = applyUpdates(board.alive, board.updates);
   auto affected = neighbors(board.updates);
   auto updates = computeChanges(alive, affected);
-  return auto_ptr<Board>(new Board(alive, updates));
+  return unique_ptr<Board>(new Board(alive, updates));
 }
 
 } // namespace life
@@ -238,10 +238,10 @@ using namespace life;
 
 int main(int argc, char **argv) {
   vector<Change> start;
-  for (int i = 0; i < sizeof(r_pentomino) / sizeof(r_pentomino[0]); i++) {
+  for (size_t i = 0; i < sizeof(r_pentomino) / sizeof(r_pentomino[0]); i++) {
     start.push_back(Change(Live, r_pentomino[i]));
   }
-  auto_ptr<const Board> board(new Board(Positions(), start));
+  unique_ptr<const Board> board(new Board(Positions(), start));
   const auto generations = 1000;
   const auto showWork = false;
   const auto times = 5;
