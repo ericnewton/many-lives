@@ -1,12 +1,22 @@
 # using auto, so turn off warnings about using c++11 keyword
-WARNFLAGS=-Wall -Wno-c++11-extensions
+# CLANG=true
+ifdef CLANG
+  CXX=c++
+  WARNFLAGS=-Wall -Wno-c++11-extensions
+  LIBS=
+else
+  CXX=gcc-11
+  WARNFLAGS=-Wall
+  LIBS=-lstdc++
+endif
+
 OPTFLAGS=-O3
 DEBUGFLAGS=-g
 CXXFLAGS= $(WARNFLAGS) $(OPTFLAGS) $(DEBUGFLAGS)
-CXX=c++
 
 life: life.cpp Makefile
-	$(CXX) $(CXXFLAGS) -o $@ $<
+	$(CXX) $(CXXFLAGS) -o $@ $< $(LIBS)
+
 
 clean:
 	rm -f life

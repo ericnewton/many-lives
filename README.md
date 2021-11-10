@@ -63,14 +63,14 @@ run for 1000 generations.
 
 Language  | Generations/sec
 --------- | -------------
-C++       |  8928
+C++       |  9615
 Clojure   |  1438
-Go        |  1560
+Go        |  1562
 Haskell   |  1139
 Java      | 10000
 Javascript|   359
-Python    |  3244
-Scala     |  9708
+Python    |  3279
+Scala     |  9345
 
 The reported value is the second fastest of 5 runs . In most cases this
 was also the fastest value as well.

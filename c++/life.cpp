@@ -2,6 +2,7 @@
 #include <set>
 #include <unordered_set>
 #include <vector>
+#include <algorithm>
 #include <utility>
 #include <thread>
 #include <chrono>
