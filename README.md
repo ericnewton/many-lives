@@ -70,6 +70,7 @@ Haskell   |  1139
 Java      | 10000
 Javascript|   359
 Python    |  3279
+Racket    |  1439
 Scala     |  9345
 
 The reported value is the second fastest of 5 runs . In most cases this
@@ -82,7 +83,7 @@ average of 5 runs.*
 ## The Experience
 
 Again, with the caveat that this was a small programming exercise and
-that I'm only really comfortable programming in 2 of the 7 languages,
+that I'm only really comfortable programming in 2 of the 8 languages,
 there was a great variation in the time and effort needed to write
 each version.
 
@@ -319,4 +320,53 @@ using language-specific features. May need to revisit this.
 
 Performance was disappointing, but perhaps I'm doing something naive
 and wasteful.
+
+### Racket
+
+I thought that writing Life in another lisp derivative would be simple
+after writing it in Clojure. It was still surprisingly different.
+
+I was very much confused over how to express lists and avoid function
+evaluation. I was able to avoid this confusionin Clojure by using
+vectors for data structures.
+
+By the time I wrote the Racket implementation I had stopped caring
+about structuring components together. In my mind, each generation of
+the Game of Life is represented by the set of Live Cells and the list
+of updates to apply to get to the next generation. A single instance
+of a generation is what I call a Board. In Racket, it's cumbersome to
+construct a Board and deconstruct it to get to the elements of the
+board, so I just stopped doing that, and pass the set or the list to
+functions as needed. In a bigger project, not grouping together parts
+that should stay together seems like a bad idea.
+
+I used the same convention for the update list: each change is a How
+(live or die symbol) and the cell position. In Clojure this is a
+little vector of two elements.  In Racket, I used a list with two
+elements. But then I needed to resort to lispy list accessors, like
+`cadr` to get to the second element of the list. And
+lists-as-datastructures need quotes: `'('die '(0 0))` (Racket) rather than
+`[die: [0 0]` (Clojure).
+
+The `for` methods and sequences of Racket are nice, but having map
+work on sets, lists and vectors in Clojure means there are fewer
+iteration mechanisms to learn.
+
+I did not try to run anything in parallel.
+
+It was easy enough to understand the error messages. Short messages
+such as `value #f found expecting a procedure` along with line numbers
+got me pretty close to problem. Sometimes the line number would be
+incorrect, but the scope of the function was always right.
+
+I used lisp-mode in emacs to edit, and command-line racket to run the
+code between changes. I would not recommend this extremely simple
+environment for any real work, since indentation in lisp-mode was
+pretty awful. But it gave me paren matching and emacs could parse the
+output of racket errors, so it was horrible.
+
+I should revisit Racket and attempt a strongly typed version. There
+are likely some simple changes to avoid list construction that might
+help performance. I could at least try to do some work in parallel to
+see if it helps or hurts.
 
