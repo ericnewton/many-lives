@@ -71,6 +71,7 @@ Java      | 10000
 Javascript|   359
 Python    |  3279
 Racket    |  1439
+Ruby      |   376
 Scala     |  9345
 
 The reported value is the second fastest of 5 runs . In most cases this
@@ -369,4 +370,46 @@ I should revisit Racket and attempt a strongly typed version. There
 are likely some simple changes to avoid list construction that might
 help performance. I could at least try to do some work in parallel to
 see if it helps or hurts.
+
+### Ruby
+
+I expected ruby to be more like python.  It turns out to be quite a
+bit different. I have some experience writing
+ruby-as-configuration-language, so some of the syntax wasn't new to
+me. However, this was the first time I had written anything close to
+algorithmic code.
+
+It was nice that many of the basic functional features on lists
+(Arrays) worked on Sets, too.
+
+The syntax for set operations was neat, but I'm not sure I'd remember
+that "|" is union and "-" is difference.
+
+Not crazy about the lambda syntax `{|x| x * 2}`, but it works and is
+concise. I was surprised that a return in a lambda expression
+terminated the outer function, so I had to hoist code with early
+returns out to a function. That was probably for the best, style-wise,
+anyhow.
+
+Not having module-level values available in methods forced me to add
+constants as arguments to functions. It wasn't hard, but it was
+unexpected.
+
+I liked the "\e" symbol representation for the escape character. I
+didn't have to figure out how a decimal 27, or octal 33 or a hex 1b
+was turned into a string character.
+
+That performance, though: that's not great. I changed the coordinate
+of a cell from a Struct to a list-of-2-elements, but that didn't have
+any effect. I changed the top call for generations from recursive to
+iterative, and that made no change, either.
+
+I was surprised I could not write a for-loop over a range with
+decreasing values: `(1..-1)`, but needed to use `1.downto(-1)`. It had
+me scratching my head because I seemed to be able to do
+`(1..-1).map{|x| x}` just fine.
+
+Lots of quirks to learn, but development went pretty fast and the
+error messages easy to diagnose. Online help and examples were
+abundant. Emacs, in ruby-mode, was my editor.
 
