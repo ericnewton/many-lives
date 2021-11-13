@@ -439,6 +439,8 @@ integer indexing.
 It was strange to use `Enum.map(collection, f)` instead of
 `collection.map(f)`, but I got over that.
 
+I used elixir-mode for emacs to do my editing.
+
 I used list comprehensions, but I didn't see a way to filter in the
 middle of the comprehension, like I did in Python or Haskell.
 
