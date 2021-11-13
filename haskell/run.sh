@@ -1,5 +1,6 @@
 #! /bin/bash
-make life || echo 1>&2 'You must have ghc installed'
+ghc --version >/dev/null || echo 1>&2 'You must have ghc installed'
+make life
 # use more CPUs: goes slower
 export GHCRTS='-s -N'
 # goes faster

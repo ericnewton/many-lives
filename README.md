@@ -67,7 +67,7 @@ C++       |  9615
 Clojure   |  1438
 Elixir    |  1171
 Go        |  1562
-Haskell   |  1139
+Haskell   |  1257
 Java      | 10000
 Javascript|   359
 Python    |  3279
@@ -289,6 +289,8 @@ I attempted to compile and run the Haskell version using multiple
 CPUs, but the performance decreased, so I have that disabled in the
 reported numbers.
 
+Thank you to Alex Newton for making my Haskell less embarassing.
+
 ### Javascript
 
 Javascript seems to go out of its way to be non-functional.  The Life
@@ -433,8 +435,8 @@ missing the closing `end`.
 
 I kept trying to index tuples with integers (`{1, 2}[0]`), which I
 eventually figured out wasn't a feature tuples supported, but the
-error message wasn't clear. And, of course, decoding tuples don't need
-integer indexing.
+error message wasn't clear. And, of course, decoding tuples doesn't
+need integer indexing.
 
 It was strange to use `Enum.map(collection, f)` instead of
 `collection.map(f)`, but I got over that.

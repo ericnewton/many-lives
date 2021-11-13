@@ -4,11 +4,9 @@ import Control.Concurrent (threadDelay)
 import qualified Data.Set as Set
 import Debug.Trace
 
-humanSpeed = 1 / 30.0;
+humanSpeed = 1 / 30.0
 generations = 1000
-live_ = "live"
-die_ = "die"
-ignore_ = "ignore"
+data DestinyType = Live | Die | Ignore deriving (Show, Eq, Ord)
 
 clearScreen = do
   -- clear the screen
@@ -44,8 +42,8 @@ printBoard board = do
 applyUpdates liveSet updates =
   Set.difference (Set.union liveSet toLive) toDie
   where
-    toLive = Set.fromList [pos | (how, pos) <- updates, how == live_]
-    toDie = Set.fromList [pos | (how, pos) <- updates, how == die_]
+    toLive = Set.fromList [pos | (Live, pos) <- updates]
+    toDie = Set.fromList [pos | (Die, pos) <- updates]
 
 neighbors pos =
   [(posx + x, posy + y)| x <- [-1 .. 1], y <- [-1 .. 1], x /= 0 || y /= 0]
@@ -55,24 +53,21 @@ neighbors pos =
 considerSet positions =
   Set.fromList (concat (map neighbors positions))
 
+-- rules of life
+change pos 2 _     = (Ignore, pos)
+change pos 3 False = (Live,   pos)
+change pos 3 True  = (Ignore, pos)
+change pos _ True  = (Die,    pos)
+change pos _ _     = (Ignore, pos)
+
 computeChange liveSet pos =
-  if neighborCount == 2 then
-    (ignore_, pos)
-  else if neighborCount == 3 then
-    if isAlive then
-       (ignore_, pos)
-    else
-      (live_, pos)
-  else if isAlive then
-    (die_, pos)
-  else
-    (ignore_, pos)
+  change pos neighborCount isAlive
   where
     neighborCount = length [True|n <- (neighbors pos), Set.member n liveSet]
     isAlive = Set.member pos liveSet
 
 computeUpdates liveSet updates =
-  [(how, pos)|(how, pos) <- (Set.toList newUpdates), how /= ignore_]
+  [(how, pos)|(how, pos) <- (Set.toList newUpdates), how /= Ignore]
   where
     changed = [pos|(how, pos) <- updates]
     newUpdates = Set.map (\ pos -> computeChange liveSet pos) (considerSet changed)
@@ -100,7 +95,7 @@ run n = do
   printGeneration n start
   where
     r_pentomino = [(0, 0), (0, 1), (1, 1), (-1, 0), (0, -1)]
-    update = map (\ pos -> (live_, pos)) r_pentomino
+    update = map (\ pos -> (Live, pos)) r_pentomino
     -- empty Sets don't "show", so throw in a value to keep it
     -- from being empty and we can get some debugging done
     -- since this is the first value in the initial generation, it's
