@@ -54,17 +54,18 @@ considerSet positions =
   Set.fromList (concat (map neighbors positions))
 
 -- rules of life
-change pos 2 _     = (Ignore, pos)
-change pos 3 False = (Live,   pos)
-change pos 3 True  = (Ignore, pos)
-change pos _ True  = (Die,    pos)
-change pos _ _     = (Ignore, pos)
+change 2 _     = Ignore
+change 3 False = Live
+change 3 True  = Ignore
+change _ True  = Die
+change _ _     = Ignore
 
 computeChange liveSet pos =
-  change pos neighborCount isAlive
+  (how, pos)
   where
     neighborCount = length [True|n <- (neighbors pos), Set.member n liveSet]
     isAlive = Set.member pos liveSet
+    how = change neighborCount isAlive
 
 computeUpdates liveSet updates =
   [(how, pos)|(how, pos) <- (Set.toList newUpdates), how /= Ignore]
