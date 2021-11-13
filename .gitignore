@@ -8,3 +8,4 @@ javascript/node_modules
 javascript/package*
 go/life
 scala/.bsp
+haskell/life
