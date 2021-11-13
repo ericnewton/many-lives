@@ -442,7 +442,7 @@ It was strange to use `Enum.map(collection, f)` instead of
 I used list comprehensions, but I didn't see a way to filter in the
 middle of the comprehension, like I did in Python or Haskell.
 
-It was much easier to do I/O in Elixer than Haskell, and so debugging
+It was much easier to do I/O in Elixir than Haskell, and so debugging
 was easy. The handy `IO.inspect` function was very helpful.
 
 Again, there was support for the escape character as "\e", which was
