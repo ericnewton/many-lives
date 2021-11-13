@@ -65,6 +65,7 @@ Language  | Generations/sec
 --------- | -------------
 C++       |  9615
 Clojure   |  1438
+Elixir    |  1171
 Go        |  1562
 Haskell   |  1139
 Java      | 10000
@@ -412,4 +413,56 @@ me scratching my head because I seemed to be able to do
 Lots of quirks to learn, but development went pretty fast and the
 error messages easy to diagnose. Online help and examples were
 abundant. Emacs, in ruby-mode, was my editor.
+
+### Elixir
+
+I have a learning disability: I continuously mispell "Elixir" as
+Elixer. Also, "Clojure" as "Closure" but I think that one is
+forgivable.
+
+Writing Life in Elixir was pretty fast and easy. Online documentation
+was helpful, the built-in data types helped a lot. It even had the
+coveted "min_max" function, which I've only seen in C++. 
+
+Error messages were pretty good, even though things like `if` are
+really macros under the covers. I was always forgetting the `end` to
+my lambda's, but the error message was clear and told me that exact
+problem.  Functions missing `end` keywords would report a problem at
+the end of the file, but also did a good job of guessing where I was
+missing the closing `end`.
+
+I kept trying to index tuples with integers (`{1, 2}[0]`), which I
+eventually figured out wasn't a feature tuples supported, but the
+error message wasn't clear. And, of course, decoding tuples don't need
+integer indexing.
+
+It was strange to use `Enum.map(collection, f)` instead of
+`collection.map(f)`, but I got over that.
+
+I used list comprehensions, but I didn't see a way to filter in the
+middle of the comprehension, like I did in Python or Haskell.
+
+It was much easier to do I/O in Elixer than Haskell, and so debugging
+was easy. The handy `IO.inspect` function was very helpful.
+
+Again, there was support for the escape character as "\e", which was
+nice.
+
+Using Elixir, I created the shortest, clearest method for encoding the
+rules for Life:
+
+```
+  def rules(liveSet, pos) do
+    count = neighborCount(liveSet, pos)
+    case count do
+      2 -> nil
+      3 -> if !alive?(liveSet, pos), do: {:live, pos}
+      _ -> if alive?(liveSet, pos), do: {:die, pos}
+    end
+  end
+```
+
+It might be worth going back to see if I can't clarify some of the
+other implementations the same way.
+
 
