@@ -8,6 +8,7 @@ humanSpeed = 1 / 30.0
 generations = 1000
 data DestinyType = Live | Die | Ignore deriving (Show, Eq, Ord)
 
+clearScreen :: IO ()
 clearScreen = do
   -- clear the screen
   putStr (esc : "[2J")
@@ -16,9 +17,12 @@ clearScreen = do
   where
     esc = chr(27)
 
+cell :: (Ord x, Ord y) => Set.Set (x, y) -> x -> y -> Char
 cell liveSet x y =
   if (Set.member (x, y) liveSet) then '@' else ' '
 
+row :: (Ord x, Enum x, Ord y) =>
+     Set.Set (x, y) -> y -> x -> x -> [Char]
 row liveSet y minx maxx =
   map (\x -> cell liveSet x y) [minx .. maxx]
 
