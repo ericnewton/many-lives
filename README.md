@@ -72,7 +72,7 @@ Java      | 10000
 Javascript|   359
 Python    |  3279
 Racket    |  1439
-Ruby      |   376
+Ruby      |   411
 Scala     |  9345
 
 The reported value is the second fastest of 5 runs . In most cases this
