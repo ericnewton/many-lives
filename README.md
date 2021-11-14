@@ -65,7 +65,7 @@ Language  | Generations/sec
 --------- | -------------
 C++       |  9615
 Clojure   |  1438
-Elixir    |  1171
+Elixir    |  1383
 Go        |  1562
 Haskell   |  1257
 Java      | 10000
@@ -469,4 +469,7 @@ rules for Life:
 It might be worth going back to see if I can't clarify some of the
 other implementations the same way.
 
-
+I was able to add some parallelism which increased performance by
+15-20%. The only other language that I've been able to get an increase
+in performance with parallel execution is Java, though I've not tried
+on most of the other languages.

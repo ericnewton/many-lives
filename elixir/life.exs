@@ -29,8 +29,22 @@ defmodule Life do
     end
   end
 
-  def computeChanges(liveSet, affected) do
-    Enum.filter(Enum.map(affected, &rules(liveSet, &1)), &!is_nil(&1))
+  def keep(collection, function) do
+    Enum.filter(Enum.map(collection, function), fn (n) -> !is_nil(n) end)
+  end
+
+  # process collection, in chunks, in parallel
+  # removes nil responses, via keep, above
+  def pmap(chunkSize, collection, function) do
+    tasks = for chunk <- Enum.chunk_every(collection, chunkSize),
+      do: Task.async(fn -> keep(chunk, function) end),
+      into: []
+    Enum.concat(for t <- tasks, do: Task.await(t))
+  end
+
+  def computeChanges(parallelism, liveSet, affected) do
+    chunk = max(div(MapSet.size(affected), parallelism), 1)
+    pmap(chunk, affected, &rules(liveSet, &1))
   end
 
   def boundingBox(liveSet) do
@@ -61,34 +75,34 @@ defmodule Life do
     :timer.sleep(div(1000, 30))
   end
   
-  def generation(n, showWork, liveSet, updates) do
+  def generation(n, showWork, liveSet, updates, parallelism) do
     if n > 0 do
       newSet = applyUpdates(liveSet, updates)
       if showWork do
 	printBoard(newSet)
       end
       affected = neighbors(updates)
-      newChanges = computeChanges(newSet, affected)
-      generation(n - 1, showWork, newSet, newChanges)
+      newChanges = computeChanges(parallelism, newSet, affected)
+      generation(n - 1, showWork, newSet, newChanges, parallelism)
     end
   end
 
-  def life(n, showWork) do
+  def life(n, showWork, parallelism) do
     start = :os.system_time(:millisecond)
     r_pentomino = Enum.map(
       [{0, 0}, {0, 1}, {1, 1}, {-1, 0}, {0, -1}],
       & {:live, &1}
     )
-    generation(n, showWork, MapSet.new(), r_pentomino)
+    generation(n, showWork, MapSet.new(), r_pentomino, parallelism)
     diff = :os.system_time(:millisecond) - start
     IO.puts(to_string(n / (diff / 1000.0)) <> " generations per sec")
   end
 end
 
 if false do
-  Life.life(300, true)
+  Life.life(300, true, 1)
 else
   for _ <- 1..5 do
-      Life.life(1000, false)
+      Life.life(1000, false, 8)
   end
 end
