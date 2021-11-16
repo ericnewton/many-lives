@@ -12,7 +12,7 @@ particular. I picked a small programming problem, Conway's Game of
 Life, as mechanism to explore the language.
 
 [Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) can be
-written to use some non-trivial data structures, but it is a smallish
+written to use some non-trivial data structures, and it is a smallish
 task that can be completed on a long plane ride. I thought I would
 play with it to see how easy Clojure was to use different algorithms.
 
@@ -29,9 +29,9 @@ haven't used the language in years.
 ## The Algorithm
 
 
-The implementation of Life uses a Set to represent the sparse array of cells
-that are alive in any one generation. The set of changes for the next
-generation are computed from the changes used in the last
+The implementation of Life uses a Set to represent the sparse array of
+cells that are alive in any one generation. The set of changes for the
+next generation are computed from the changes used in the last
 generation. The changes themselves are sparse with respect to the set
 of alive cells, so tracking the changes between generations saves some
 work.
@@ -75,7 +75,7 @@ Racket    |  1439
 Ruby      |   411
 Scala     |  9345
 
-The reported value is the second fastest of 5 runs . In most cases this
+The reported value is the second fastest of 5 runs. In most cases this
 was also the fastest value as well.
 
 *OMG, haskell is a pain to benchmark. The reported value is an
@@ -85,12 +85,11 @@ average of 5 runs.*
 ## The Experience
 
 Again, with the caveat that this was a small programming exercise and
-that I'm only really comfortable programming in 2 of the 8 languages,
+that I'm only really comfortable programming in 2 of the languages,
 there was a great variation in the time and effort needed to write
 each version.
 
 ### Clojure
-
 
 I started with Clojure and wrote at least 4 different versions of
 Life. It's hard to say how long this version would have taken if I
@@ -155,7 +154,7 @@ I was pleasantly surprised I could make type aliases, like `typedef`
 in C/C++. I could change my types from `Set[Position]` to a mnemonic
 like `LiveSet` and it remained compatible with all things needing a
 `Set[Position]`. I used this a lot and I think it clarified code over
-all of the other implementations.
+the other implementations.
 
 Not that it was intentional, but the Scala version is nearly as short
 as the Python version.
@@ -166,15 +165,15 @@ Scala code. It was easy to get a plugin to support Scala. `sbt`, like
 dependencies, build and execute.
 
 Even with copious references to online documentation, I had the Scala
-version running in a couple hours, starting with downloading Scala3,
+version running in a couple hours, starting with downloading Scala,
 IntelliJ, etc.
 
 ### Java
 
 This is the language I use every day for work. There were no suprises
 here: I could write Java quickly. I used IntelliJ even though I was
-unfamiliar with it, because I couldn't be bothered to fetch eclipse
-for so little code.
+unfamiliar with it, because I couldn't be bothered to fetch my usual
+editor (eclipse) for so little code.
 
 But I probably spent half my time wrestling with maven.  I just wanted
 to use the Immutable data structures from guava to write my
@@ -187,7 +186,6 @@ And I have 10 years of using maven!
 
 lein and sbt have learned lessons and built a newbie friendly
 build/dependency management infrastructure.
-
 
 ### Python
 
@@ -218,16 +216,16 @@ something useful to use while debugging.
 
 Error messages for template errors have improved in the last 20 years,
 but I was still rewarded with a page of errors from a template
-expansion. I had simply failed to provide a hash function for an
+expansion. I had failed to provide a hash function for an
 `unordered_set`.  None of the errors said anything about a hash. That
 said, the C++ error messages were consistently easier to understand
 than the Clojure messages.
 
-Some things were just very hard to do in C++ that were laughably
-trivial in other languages.  For example, representing the hard-coded
-start set of live cells. I could get something to work, of course, but
-getting something pretty and easy to read was much harder. In all the
-other languages, it was trivial.
+Some things were just very hard to do in C++ that were trivial in
+other languages.  For example, representing the hard-coded start set
+of live cells. I could get something to work, of course, but getting
+something pretty *and* easy to read was much harder. In all the other
+languages, it was trivial.
 
 I wrote a Makefile to make sure I recorded the optimization, debugging
 and warning options I wanted. It's a simple file, though, and one I
@@ -258,8 +256,8 @@ ways to tweak C++ to make it do something faster. As long as it's not
 too involved, I'd be happy to change the code.
 
 I did not have the time or inclination to put effort into writing
-parallel version, though I did spend time doing so for Clojure, Scala
-, Java and Haskell.  The limits of the CPython implementation are
+parallel version, though I did spend time doing so for Clojure, Scala,
+Java and Haskell.  The limits of the CPython implementation are
 unlikely to provide performance improvements with multithreading, and
 the nature of the problem does not lend itself to other ways of making
 Python programs execute in parallel.
@@ -350,7 +348,7 @@ little vector of two elements.  In Racket, I used a list with two
 elements. But then I needed to resort to lispy list accessors, like
 `cadr` to get to the second element of the list. And
 lists-as-datastructures need quotes: `'('die '(0 0))` (Racket) rather than
-`[die: [0 0]` (Clojure).
+`[die: [0 0]]` (Clojure).
 
 The `for` methods and sequences of Racket are nice, but having map
 work on sets, lists and vectors in Clojure means there are fewer
@@ -364,10 +362,10 @@ got me pretty close to problem. Sometimes the line number would be
 incorrect, but the scope of the function was always right.
 
 I used lisp-mode in emacs to edit, and command-line racket to run the
-code between changes. I would not recommend this extremely simple
-environment for any real work, since indentation in lisp-mode was
-pretty awful. But it gave me paren matching and emacs could parse the
-output of racket errors, so it was horrible.
+code between changes. I would not recommend this environment for any
+real work, since indentation in lisp-mode was pretty awful. But it
+gave me paren matching and emacs could parse the output of racket
+errors, so it wasn't horrible.
 
 I should revisit Racket and attempt a strongly typed version. There
 are likely some simple changes to avoid list construction that might
@@ -388,8 +386,8 @@ It was nice that many of the basic functional features on lists
 The syntax for set operations was neat, but I'm not sure I'd remember
 that "|" is union and "-" is difference.
 
-Not crazy about the lambda syntax `{|x| x * 2}`, but it works and is
-concise. I was surprised that a return in a lambda expression
+I found the lambda syntax `{|x| x * 2}` cumbersome, but it works and
+is concise. I was surprised that a return in a lambda expression
 terminated the outer function, so I had to hoist code with early
 returns out to a function. That was probably for the best, style-wise,
 anyhow.
