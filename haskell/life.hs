@@ -26,17 +26,28 @@ row :: (Ord x, Enum x, Ord y) =>
 row liveSet y minx maxx =
   map (\x -> cell liveSet x y) [minx .. maxx]
 
+
+expandBox :: (Ord a, Ord b) => ((a, b), (a, b)) -> (a, b) -> ((a, b), (a, b))
+expandBox box point =
+  ((min minx x, min miny y), (max maxx x, max maxy y))
+  where
+    ((minx, miny), (maxx, maxy)) = box
+    (x, y) = point
+
+bbox :: Foldable t => t (Int, Int) -> ((Int, Int), (Int, Int))
+bbox lst =
+  foldl expandBox tinybox lst
+  where
+    minint = minBound::Int
+    maxint = maxBound::Int
+    tinybox = ((maxint, maxint), (minint, minint))
+
 asString board =
   concat (intersperse "\n"
           (map (\y -> row liveSet y minx maxx) [maxy, maxy - 1 .. miny]))
   where
     (liveSet, updates) = board
-    xs = Set.map (\(x, y) -> x) liveSet
-    ys = Set.map (\(x, y) -> y) liveSet
-    minx = Set.findMin xs
-    maxx = Set.findMax xs
-    miny = Set.findMin ys
-    maxy = Set.findMax ys
+    ((minx, miny), (maxx, maxy)) = bbox liveSet
 
 printBoard board = do
   clearScreen
@@ -44,7 +55,7 @@ printBoard board = do
   threadDelay (round (1000000 * humanSpeed))
 
 applyUpdates liveSet updates =
-  Set.difference (Set.union liveSet toLive) toDie
+  Set.union (Set.difference liveSet toDie) toLive
   where
     toLive = Set.fromList [pos | (Live, pos) <- updates]
     toDie = Set.fromList [pos | (Die, pos) <- updates]
