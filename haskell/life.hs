@@ -2,7 +2,6 @@ import Data.Char (chr)
 import Data.List (concat, intersperse)
 import Control.Concurrent (threadDelay)
 import qualified Data.Set as Set
-import Debug.Trace
 
 humanSpeed = 1 / 30.0
 generations = 1000
