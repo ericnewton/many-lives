@@ -26,16 +26,16 @@ cell liveSet coord =
   if (Set.member coord liveSet) then '@' else ' '
 
 row :: LiveSet -> Int -> Int -> Int -> [Char]
-row liveSet y minx maxx =
+row liveSet minx maxx y =
   map (\x -> cell liveSet (Coord x y)) [minx .. maxx]
 
 
 expandBox :: ((Int, Int), (Int, Int)) -> Coord -> ((Int, Int), (Int, Int))
-expandBox box point =
+expandBox box coord =
   ((min minx x, min miny y), (max maxx x, max maxy y))
   where
     ((minx, miny), (maxx, maxy)) = box
-    (x, y) = (coord_x point, coord_y point)
+    (x, y) = (coord_x coord, coord_y coord)
 
 bbox :: Foldable t => t (Coord) -> ((Int, Int), (Int, Int))
 bbox lst =
@@ -45,13 +45,15 @@ bbox lst =
     maxint = maxBound::Int
     tinybox = ((maxint, maxint), (minint, minint))
 
+asString :: Board -> [Char]
 asString board =
   concat (intersperse "\n"
-          (map (\y -> row liveSet y minx maxx) [maxy, maxy - 1 .. miny]))
+          (map (row liveSet minx maxx) [maxy, maxy - 1 .. miny]))
   where
     (liveSet, updates) = board
     ((minx, miny), (maxx, maxy)) = bbox liveSet
 
+printBoard :: Board -> IO ()
 printBoard board = do
   clearScreen
   putStrLn (asString board)
@@ -95,7 +97,7 @@ computeUpdates liveSet updates =
   [(how, pos)|(how, pos) <- (Set.toList newUpdates), how /= Ignore]
   where
     changed = [pos|(how, pos) <- updates]
-    newUpdates = Set.map (\ pos -> computeChange liveSet pos) (considerSet changed)
+    newUpdates = Set.map (computeChange liveSet) (considerSet changed)
 
 next :: Board -> Board
 next board =
