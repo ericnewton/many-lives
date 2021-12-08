@@ -289,6 +289,20 @@ reported numbers.
 
 Thank you to Alex Newton for making my Haskell less embarassing.
 
+-- A month later --
+
+I implemented a few more suggestions, added a lot more typing. Towards
+the end, I started to understand the error messages. Now I just don't
+know what to think. This bit of code is very small and took a long
+time to wring out, but I do like the result. Mostly.  Field
+accessors-as-functions seem so clunky. I liked being able to create
+type aliases and overall I think the result is readable.
+
+I once heard someone say, or maybe I just made it up, that "Object
+Oriented programming is higher-order functions for the
+[unsophisticated]." A different word might have have been used for
+unsophisticated. But, I'm one of them, I think.
+
 ### Javascript
 
 Javascript seems to go out of its way to be non-functional.  The Life
