@@ -1,7 +1,7 @@
 # Life in many languages
 
 I've become interested in functional programming. Growing numbers of
-processors and use of multithreaded designs makes sticking with
+processors and use of multi-threaded designs makes sticking with
 functional mechanisms more appealing. In particular, I find the
 arguments made by Rich Hickey (author of the language *Clojure*)
 compelling.
@@ -79,7 +79,7 @@ Scala     |  9345
 The reported value is the second fastest of 5 runs. In most cases this
 was also the fastest value as well.
 
-*OMG, haskell is a pain to benchmark. The reported value is an
+*OMG, Haskell is a pain to benchmark. The reported value is an
 average of 5 runs.*
 
 
@@ -171,7 +171,7 @@ IntelliJ, etc.
 
 ### Java
 
-This is the language I use every day for work. There were no suprises
+This is the language I use every day for work. There were no surprises
 here: I could write Java quickly. I used IntelliJ even though I was
 unfamiliar with it, because I couldn't be bothered to fetch my usual
 editor (eclipse) for so little code.
@@ -206,7 +206,7 @@ I attempted to switch from using tuples for small data types to
 ### C++
 
 I've not programmed professionally in C++ for years. It was a struggle
-to re-learn all the little idiosyncracies of the language as I cobbled
+to re-learn all the little idiosyncrasies of the language as I cobbled
 together a reasonable implementation. 
 
 This version was easily the longest and most difficult to write. I had
@@ -259,7 +259,7 @@ too involved, I'd be happy to change the code.
 I did not have the time or inclination to put effort into writing
 parallel version, though I did spend time doing so for Clojure, Scala,
 Java and Haskell.  The limits of the CPython implementation are
-unlikely to provide performance improvements with multithreading, and
+unlikely to provide performance improvements with multi-threading, and
 the nature of the problem does not lend itself to other ways of making
 Python programs execute in parallel.
 
@@ -277,7 +277,7 @@ just wasn't obvious that I should start that way.
 
 The error messages were almost as hard to understand in Haskell as
 they were with Clojure, and I used the same strategy of plunking small
-snippits into the interactive prompt to get results.
+snippets into the interactive prompt to get results.
 
 There was a moment when I was unable to reproduce the working code
 from the interactive environment in the compiled environment. It
@@ -288,7 +288,7 @@ I attempted to compile and run the Haskell version using multiple
 CPUs, but the performance decreased, so I have that disabled in the
 reported numbers.
 
-Thank you to Alex Newton for making my Haskell less embarassing.
+Thank you to Alex Newton for making my Haskell less embarrassing.
 
 -- A month later --
 
@@ -344,7 +344,7 @@ I thought that writing Life in another lisp derivative would be simple
 after writing it in Clojure. It was still surprisingly different.
 
 I was very much confused over how to express lists and avoid function
-evaluation. I was able to avoid this confusionin Clojure by using
+evaluation. I was able to avoid this confusion in Clojure by using
 vectors for data structures.
 
 By the time I wrote the Racket implementation I had stopped caring
@@ -362,7 +362,7 @@ I used the same convention for the update list: each change is a How
 little vector of two elements.  In Racket, I used a list with two
 elements. But then I needed to resort to lispy list accessors, like
 `cadr` to get to the second element of the list. And
-lists-as-datastructures need quotes: `'('die '(0 0))` (Racket) rather than
+lists-as-data-structures need quotes: `'('die '(0 0))` (Racket) rather than
 `[die: [0 0]]` (Clojure).
 
 The `for` methods and sequences of Racket are nice, but having map
@@ -431,7 +431,7 @@ abundant. Emacs, in ruby-mode, was my editor.
 
 ### Elixir
 
-I have a learning disability: I continuously mispell "Elixir" as
+I have a learning disability: I continuously misspell "Elixir" as
 Elixer. Also, "Clojure" as "Closure" but I think that one is
 forgivable.
 
@@ -527,9 +527,8 @@ about two hours from start to finish. That's very fast to go from
 data structures.
 
 Not all the code is written in a functional style. `for` loops are
-used in a couple of places, colletions are pre-allocated for size for
+used in a couple of places, collections are pre-allocated for size for
 performance. Attempts were made to use `rayon` to speed up the
 algorithm, but it made it (only slightly) slower. I was hoping Rust
 performance would get closer to the top performers, but I was unable
 to get it there.
-
