@@ -5,6 +5,9 @@ use std::time::Instant;
 use std::cmp::min;
 use std::cmp::max;
 
+#[global_allocator]
+static GLOBAL: jemallocator::Jemalloc = jemallocator::Jemalloc;
+
 type Coord = (i32, i32);
 type LiveSet = HashSet<Coord>;
 const GENERATIONS: i32 = 1000;
@@ -36,15 +39,13 @@ fn apply_changes(board: &Board) -> LiveSet {
     partial.union(&to_live).cloned().collect()
 }
 
-const OFFSETS : [i32; 3] = [-1, 0, 1];
-
 fn eight(coord: &Coord) -> Vec<Coord> {
-    let mut result = Vec::new();
+    let mut result = Vec::with_capacity(8);
     let (cx, cy) = coord;
-    for x in OFFSETS.iter() {
-	for y in OFFSETS.iter() {
-	    if *x != 0 || *y != 0 {
-		result.push((cx + *x, cy + *y));
+    for x in -1..=1 {
+	for y in -1..=1 {
+	    if x != 0 || y != 0 {
+		result.push((cx + x, cy + y));
 	    }
 	}
     }
@@ -52,42 +53,46 @@ fn eight(coord: &Coord) -> Vec<Coord> {
 }
 
 fn neighbors(changes: &Changes) -> LiveSet {
-    let change_neighbors: LiveSet =
-	changes.iter()
-	.flat_map(|c|eight(&c.coord))
-	.collect();
-    change_neighbors
+    let mut result = LiveSet::with_capacity(changes.len() * 8);
+    for c in changes.into_iter().flat_map(|c|eight(&c.coord)) {
+	result.insert(c);
+    }
+    result
+}
+
+fn change(destiny: Destiny, coord: Coord) -> Change {
+    return Change { destiny: destiny, coord: coord };
 }
 
 fn live(c: &Coord) -> Change {
-    Change { destiny: Destiny::Live, coord: *c }
+    change(Destiny::Live, *c)
 }
 
 fn die(c: &Coord) -> Change {
-    Change { destiny: Destiny::Die, coord: *c }
+    change(Destiny::Die, *c)
 }
 
-fn ignore(c: &Coord) -> Change {
-    Change { destiny: Destiny::Ignored, coord: *c }
+fn ignored(c: &Coord) -> Change {
+    change(Destiny::Ignored, *c)
 }
 
 fn neighbor_count(live_set: &LiveSet, coord: &Coord) -> usize {
-    eight(coord).iter().filter(|c|live_set.contains(c)).count()
+    eight(coord).into_iter().filter(|c|live_set.contains(c)).count()
 }
 
-fn change(live_set: &LiveSet, c: &Coord) -> Change {
+fn compute_change(live_set: &LiveSet, c: &Coord) -> Change {
     let count = neighbor_count(live_set, c);
     match count {
-	2 => ignore(c),
-	3 => if live_set.contains(c) { ignore(c) } else { live(c) },
-	_ => if live_set.contains(c) { die(c) } else { ignore(c) },
+	2 => ignored(c),
+	3 => if !live_set.contains(c) { live(c) } else { ignored(c) },
+	_ => if  live_set.contains(c) { die(c)  } else { ignored(c) },
     }
 }
 
 fn compute_changes(live_set: &LiveSet, affected: &LiveSet) -> Changes {
     let result : Changes =
-	affected.iter()
-	.map(|c|change(live_set, c))
+	affected.into_iter()
+	.map(|c|compute_change(live_set, c))
 	.filter(|c|match c.destiny { Destiny::Ignored => false, _ => true } )
 	.collect();
     result
@@ -100,8 +105,9 @@ fn next(board: Board) -> Board {
     (new_set, updates)
 }
 
-type BoundingBox = (Coord, Coord);
-const MAX_MIN: Coord = (i32::MAX, i32::MIN);
+type Corner = Coord;
+type BoundingBox = (Corner, Corner);
+const MAX_MIN: Corner = (i32::MAX, i32::MIN);
 const TINY_BOX: BoundingBox = (MAX_MIN, MAX_MIN);
 
 fn bbox(live_set: &LiveSet) -> BoundingBox {
@@ -109,7 +115,7 @@ fn bbox(live_set: &LiveSet) -> BoundingBox {
 	return ((0, 0), (1, 1));
     }
     let ((mut minx, mut maxx), (mut miny, mut maxy)) = TINY_BOX;
-    for (x, y) in live_set.iter() {
+    for (x, y) in live_set.into_iter() {
 	minx = min(minx, *x);
 	miny = min(miny, *y);
 	maxx = max(maxx, *x);
@@ -142,11 +148,11 @@ fn print_board(board: &Board) {
 
 fn run() {
     let now = Instant::now();
-    let r_pentimino = [(0, 0), (0, 1), (1, 1), (-1, 0), (0, -1)];
-    let changes : Changes = r_pentimino.iter()
+    let r_pentomino = [(0, 0), (0, 1), (1, 1), (-1, 0), (0, -1)];
+    let changes : Changes = r_pentomino.into_iter()
 	.map(|c|Change {
 	    destiny: Destiny::Live,
-	    coord: *c,
+	    coord: c,
 	})
 	.collect();
     let mut board = (HashSet::new(), changes);
