@@ -9,3 +9,4 @@ javascript/package*
 go/life
 scala/.bsp
 haskell/life
+rust/life/Cargo.lock

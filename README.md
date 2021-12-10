@@ -73,6 +73,7 @@ Javascript|   359
 Python    |  3279
 Racket    |  1439
 Ruby      |   411
+Rust      |  4809
 Scala     |  9345
 
 The reported value is the second fastest of 5 runs. In most cases this
@@ -485,3 +486,46 @@ I was able to add some parallelism which increased performance by
 15-20%. The only other language that I've been able to get an increase
 in performance with parallel execution is Java, though I've not tried
 on most of the other languages.
+
+### Rust
+
+Felt strangely comfortable writing in Rust. The memory model for
+reference ownership was new to me so I read the a bit about it before
+attempting to build anything.  The concepts were fairly
+straightforward, though I'll admit to a bunch of guessing when I was
+feeding code to the compiler.
+
+The error messages were very helpful and complete. The only gotcha I
+hit consistently was adding a semicolon after the return value as the
+final result of a function. This was documented in the tutorial I read
+about reference ownership, so it wasn't tricky to figure out.
+
+I used type aliases for the different data structures, ranges for
+constant loops. The iterator/map/filter functional constructs are
+similar enough to those in Java that I was able to adapt easily.
+
+Performance is good, though not quite as fast as the Java and C++
+versions. And, as always, I could be doing something wrong, since this
+is my very first Rust program.
+
+Tooling was pretty good: installing cargo and building the project was
+simple enough, though I did not end up using any packages outside of
+`std`. Code was edited in emacs `rust` mode. I didn't even bother
+running the compiler under emacs, the error messages and context
+provided by the compiler made it easy to trace the error back to the
+code.
+
+Online documentation is very good, with simple examples to show off a
+library function call, or a language feature. Every time I looked for
+a something, I would just search for the name I use for that feature
+and the term "rust-lang"... a search engine would provide the answer
+in the first page of results.
+
+This was the fastest "new language" implementation to write: just
+about two hours from start to finish. That's very fast to go from
+"Hello World!" to a program that benchmarks itself and uses advanced
+data structures.
+
+Not all the code is written in a functional style. for loops are used
+a couple of places and should be replaced with iter/map/filter
+equivalents.
