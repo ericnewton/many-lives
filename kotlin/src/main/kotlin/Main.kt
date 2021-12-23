@@ -11,9 +11,7 @@ const val SHOW_WORK = false
 val ESC : Char = Char(27)
 
 data class Coord(val x: Int, val y: Int)
-enum class Destiny {
-    LIVE, DIE, IGNORE
-}
+enum class Destiny { LIVE, DIE, IGNORE }
 data class Change(val coord: Coord, val destiny: Destiny)
 typealias LiveSet = PersistentSet<Coord>
 typealias Changes = PersistentSet<Change>
@@ -47,7 +45,7 @@ private fun printBoard(board: Board) {
     MILLISECONDS.sleep(1000 / 30L)
 }
 
-private fun eight() : ImmutableList<Coord> {
+private fun eight() : PersistentList<Coord> {
     val result = mutableListOf<Coord>()
     for (x in -1..1) {
         for (y in -1..1) {
@@ -56,9 +54,9 @@ private fun eight() : ImmutableList<Coord> {
             }
         }
     }
-    return result.toImmutableList()
+    return result.toPersistentList()
 }
-private val eight: List<Coord> = eight()
+private val eight: PersistentList<Coord> = eight()
 
 private fun neighbors(coord: Coord) : LiveSet {
     return eight.map { c -> Coord(coord.x + c.x, coord.y + c.y)} .toPersistentHashSet()
