@@ -1,7 +1,6 @@
 package newton.eric.c;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -103,7 +102,7 @@ public class App {
         }
     }
 
-    // apply the kill/resurection set to the live set
+    // apply the kill/resurrection set to the live set
     private static ImmutableSet<Position> applyUpdates(ImmutableSet<Position> alive,
                                                        Collection<Change> updates) {
         Set<Position> result = Sets.newHashSet(alive);
@@ -190,7 +189,7 @@ public class App {
                 }
             }
             long msecs = System.currentTimeMillis() - start;
-            System.out.println(String.format("%.2f generations / sec", generations / (msecs / 1000.0)));
+            System.out.printf("%.2f generations / sec%n", generations / (msecs / 1000.0));
         }
     }
 }

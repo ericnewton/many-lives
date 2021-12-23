@@ -70,6 +70,7 @@ Go        |  1562
 Haskell   |  1257
 Java      | 10000
 Javascript|   359
+Kotlin    |  5524
 Python    |  3279
 Racket    |  1439
 Ruby      |   411
@@ -532,3 +533,45 @@ performance. Attempts were made to use `rayon` to speed up the
 algorithm, but it made it (only slightly) slower. I was hoping Rust
 performance would get closer to the top performers, but I was unable
 to get it there.
+
+### Kotlin
+
+Apparently I'm unable to learn from mistakes, because I used maven
+to build my Kotlin project. It went better than my Java experience
+but I think that's only because Kotlin doesn't have ancient examples
+laying around the Internet.
+
+Kotlin was surprisinging hard for me. I was able to type in the data 
+structures easily enough.  In fact, that part went very fast.
+
+I struggled getting InteliJ add the right dependency for the kotlinx 
+immutable collections library.  It added one, and the program would
+run within IntelliJ, but then I could not build from the command line.
+
+I was irked that I could not define a constant based on a complex
+expression. Sure, I could get into trouble executing arbitrary expressions 
+to make a constant, and I could define an immutable `val`, but the 
+naming convention is all wrong.  I could not easily define a 
+constant data structure, such as the initial set of live cells. 
+That is, there's no list of tuples as part of the syntax. I made a 
+list of a data type, but it's fat and clumsy. 
+
+Performance is less than Java and Scala. I don't know what I'm doing, 
+so perhaps it's easy enough to fix with experience.
+
+IntelliJ locked up for me as I was wrapping up. Given that JetBrains builds
+both IntelliJ and Kotlin, I was expecting a smoother experience.
+
+The Kotlin compiler was easy to understand.  I enjoyed not having to 
+specify redundant type information.  I used immutable data classes 
+for all my data structures and they were very nice.  I think Kotlin 
+has a very readable result. Type aliases improve readability, though
+the need to add '.toPersistentHashSet()' at the end of every transformative
+pipeline constantly betrays the implementation details. Comparing the Java
+and Kotlin versions for basic structures shows how much extra is required
+for a simple data type in Java.
+
+InteliJ did suggest a simpler stream for counting neighbors, and I'm
+going to go back and see if there are other languages that consume
+a stream/iterator/etc with a count function that takes a predicate.
+That was a good suggestion, and a good mark for InteliJ.
