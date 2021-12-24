@@ -76,6 +76,7 @@ Racket    |  1439
 Ruby      |   411
 Rust      |  6467
 Scala     |  9345
+Zig       | 11628
 
 The reported value is the second fastest of 5 runs. In most cases this
 was also the fastest value as well.
@@ -575,3 +576,61 @@ InteliJ did suggest a simpler stream for counting neighbors, and I'm
 going to go back and see if there are other languages that consume
 a stream/iterator/etc with a count function that takes a predicate.
 That was a good suggestion, and a good mark for InteliJ.
+
+# Zig
+
+Zig, simple as the programming model is, with user-managed memory
+allocation, and limited support for higher-order functions, did
+support a usable debug print formatting with no extra work. This was
+unbelievably welcome.  As were the defaults for the HashMap I used.
+
+The documentation for the `std` library was, um, sparse.  I finally
+resorted to searching the installed .zig files and guessing at
+function names. I only needed a mechanism to sleep, and a way to time
+the performance with millisecond granularity (or better).
+
+Type aliases were nice. That let me define a new type based on
+existing types. Interesting that the type for something like
+`AutoHashMap` looks like a function, with type arguments. See the
+error message below for the type errors this created.
+
+
+```
+./life.zig:110:19: error: expected type 'std.hash_map.HashMap(Change,void,std.hash_map.AutoContext(Change),80)', found '@typeInfo(@typeInfo(@TypeOf(computeChanges)).Fn.return_type.?).ErrorUnion.error_set!std.hash_map.HashMap(Change,void,std.hash_map.AutoContext(Change),80)'
+        changes = nextGen;
+```
+
+Here, the function `nextGen` returns a possible error, and the type
+`changes` does not support that. This is reminicient of the very long
+error messages one used to get with templates in C++.
+
+I played around with it a little to tweak performance. Once I turned
+on optimization, changed the allocator, and tuned the HastMap
+capacities, it got pretty fast.  But it's written in a pretty
+low-level way, with hand-written loops, and manual set operations.
+
+While I was typing this up, I checked, and it looks like arguments
+passed to functions are immuatable.  This didn't come up because the
+code was written for a functional style, so it was never an issue.  I
+altered the code to attempt to mutate a parameter and recieved an
+error message.  That's a nice discovery, because the other trappings
+of functional programming, such as closures, currying, and more
+complicated higher-order functions are not supported. Of course, there
+are ways to do these things manually.
+
+Speaking of doing things manually, as you start to wander off into the
+details of more complicated data structures, such as `HashMap`, you
+start to see things like the Context parameter, which is starting to
+look like C++ template traits. Or java Interfaces.  It has functions
+that need to be provided with arguments like `self` or `This`.
+
+I never had an crash with a null pointer, or for that matter, any
+other runtime crash, which is that basic premise of Jig. Development
+went about as fast as C++, and would have been faster with some online
+examples or library documentation.
+
+The compiler could complain more about unused variables, imports and
+definitions.
+
+I used zig-mode in emacs. It runs the compiler to check the code and
+reformat as you save the file, which I found that I liked.

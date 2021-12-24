@@ -11,3 +11,4 @@ scala/.bsp
 haskell/life
 rust/life/Cargo.lock
 .idea
+zig-cache
