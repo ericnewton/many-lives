@@ -589,7 +589,7 @@ resorted to searching the installed .zig files and guessing at
 function names. I only needed a mechanism to sleep, and a way to time
 the performance with millisecond granularity (or better).
 
-Type aliases were nice. That let me define a new type based on
+Type aliases were nice. That let me define a new type name based on
 existing types. Interesting that the type for something like
 `AutoHashMap` looks like a function, with type arguments. See the
 error message below for the type errors this created.
@@ -602,31 +602,33 @@ error message below for the type errors this created.
 
 Here, the function `nextGen` returns a possible error, and the type
 `changes` does not support that. This is reminicient of the very long
-error messages one used to get with templates in C++.
+error messages one used to get with templates in C++. That's not great.
 
-I played around with it a little to tweak performance. Once I turned
-on optimization, changed the allocator, and tuned the HastMap
-capacities, it got pretty fast.  But it's written in a pretty
-low-level way, with hand-written loops, and manual set operations.
+Once the program was working, I played around a little to tweak
+performance. I turned on optimization, changed the allocator, and
+tuned the HastMap capacities, and it got pretty fast.  But it's
+written in a pretty low-level way, with hand-written loops, and manual
+Set (Map) operations.
 
 While I was typing this up, I checked, and it looks like arguments
-passed to functions are immuatable.  This didn't come up because the
-code was written for a functional style, so it was never an issue.  I
-altered the code to attempt to mutate a parameter and recieved an
-error message.  That's a nice discovery, because the other trappings
-of functional programming, such as closures, currying, and more
-complicated higher-order functions are not supported. Of course, there
-are ways to do these things manually.
+passed to functions are immuatable.  This didn't come up as I was
+coding because the original design was written for a functional style,
+so it was never an issue.  I altered the code to attempt to mutate a
+parameter and received an error message.  That's a nice discovery,
+because the other trappings of functional programming, such as
+closures, currying, and more complicated higher-order functions are
+not supported. Of course, there are ways to do these things manually.
 
 Speaking of doing things manually, as you start to wander off into the
 details of more complicated data structures, such as `HashMap`, you
-start to see things like the Context parameter, which is starting to
-look like C++ template traits. Or java Interfaces.  It has functions
-that need to be provided with arguments like `self` or `This`.
+can see things like the Context parameter, which is starting to look
+like C++ template traits. Or java interfaces.  It provides functions
+that are needed by the datastructure data types and those functions
+have arguments like `self` or `This`.
 
 I never had an crash with a null pointer, or for that matter, any
-other runtime crash, which is that basic premise of Jig. Development
-went about as fast as C++, and would have been faster with some online
+other runtime crash, which is that basic premise of Zig. Development
+went about as fast as C++, and would have been faster with more online
 examples or library documentation.
 
 The compiler could complain more about unused variables, imports and
