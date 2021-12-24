@@ -91,17 +91,21 @@ fn printGeneration(alive: LiveSet) !void {
     std.time.sleep(humanWaitMillis * 1000000);
 }
 
-const neighborOffsets = [_][2]i32{
-    [_]i32{ -1, -1 },
-    [_]i32{ -1, 0 },
-    [_]i32{ -1, 1 },
+const Offset = Coord;
+fn offset(x: i32, y: i32) Offset {
+    return Offset{ .x = x, .y = y };
+}
+const neighborOffsets = [_]Offset{
+    offset(-1, -1),
+    offset(-1, 0),
+    offset(-1, 1),
 
-    [_]i32{ 0, -1 },
-    [_]i32{ 0, 1 },
+    offset(0, -1),
+    offset(0, 1),
 
-    [_]i32{ 1, -1 },
-    [_]i32{ 1, 0 },
-    [_]i32{ 1, 1 },
+    offset(1, -1),
+    offset(1, 0),
+    offset(1, 1),
 };
 
 fn computeNeighbors(changes: ChangeSet) !LiveSet {
@@ -109,10 +113,8 @@ fn computeNeighbors(changes: ChangeSet) !LiveSet {
     try result.ensureCapacity(changes.count() * 8);
     var iter = changes.keyIterator();
     while (iter.next()) |next| {
-        for (neighborOffsets) |pair| {
-            const x = pair[0];
-            const y = pair[1];
-            try result.put(c(next.coord.x + x, next.coord.y + y), {});
+        for (neighborOffsets) |xy| {
+            try result.put(c(next.coord.x + xy.x, next.coord.y + xy.y), {});
         }
     }
     return result;
@@ -120,10 +122,8 @@ fn computeNeighbors(changes: ChangeSet) !LiveSet {
 
 fn neighborCount(alive: LiveSet, next: Coord) i32 {
     var result = @as(i32, 0);
-    for (neighborOffsets) |pair| {
-        const x = pair[0];
-        const y = pair[1];
-        if (alive.contains(c(next.x + x, next.y + y))) {
+    for (neighborOffsets) |xy| {
+        if (alive.contains(c(next.x + xy.x, next.y + xy.y))) {
             result = result + 1;
         }
     }
