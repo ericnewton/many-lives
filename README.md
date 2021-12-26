@@ -71,6 +71,7 @@ Haskell   |  1257
 Java      | 10000
 Javascript|   359
 Kotlin    |  5524
+OCaml     |  1858
 Python    |  3279
 Racket    |  1439
 Ruby      |   411
@@ -636,3 +637,26 @@ definitions.
 
 I used zig-mode in emacs. It runs the compiler to check the code and
 reformat as you save the file, which I found that I liked.
+
+# OCaml
+
+Took me a while to get into the swing of OCaml.  I got stuck on some
+basic syntax-level problems: `[a, b, c]` vs `[a; b; c]`.  I would call
+funtions with tuples `f(a, b)` vs. `(f a b)`. The compiler complained
+about types, and I was completely lost on reading the type information
+presented based on what I had provided.
+
+I got stuck on not being able to `map` a Set since it must return 
+a Set of the same type.
+
+Other than type confusion when using the wrong syntax, it went alright.
+It took me about as long to learn how to create and print basic data
+structures as it took me to write the actual logic.  But this is after
+spilling out many functional versions, especially grinding out the 
+Haskell version.
+
+I used taureg-mode in emacs.
+
+Performance was disappointing.  I've turned on optimizations by 
+installing and using the `4.10.2+flambda` compiler. It's 3x faster 
+than the default `ocamlc` runtime, but it's still half as fast as python.
