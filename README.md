@@ -646,17 +646,32 @@ funtions with tuples `f(a, b)` vs. `(f a b)`. The compiler complained
 about types, and I was completely lost on reading the type information
 presented based on what I had provided.
 
-I got stuck on not being able to `map` a Set since it must return 
-a Set of the same type.
-
 Other than type confusion when using the wrong syntax, it went alright.
 It took me about as long to learn how to create and print basic data
 structures as it took me to write the actual logic.  But this is after
 spilling out many functional versions, especially grinding out the 
 Haskell version.
 
-I used taureg-mode in emacs.
+I used taureg-mode in emacs, which was fine, but nothing special.
+Auto indentation let me know when my syntax was wrong, which was
+often.
 
-Performance was disappointing.  I've turned on optimizations by 
-installing and using the `4.10.2+flambda` compiler. It's 3x faster 
-than the default `ocamlc` runtime, but it's still half as fast as python.
+Performance was disappointing.  I've turned on optimizations by
+installing and using the `4.10.2+flambda` compiler as `ocamlopt`. It's
+3x faster than the default `ocamlc` runtime, but it's still half as
+fast as python.
+
+There were some annoying collection/iterator issues. By specifying the
+type of the collection to execute a method, such as `Set.map` you have
+to change the function call if you switch from a Set to a List or
+Seq. `Set.map` must return a `Set` of the same type, which is really
+limiting.  For example, if I wanted to get the Set of first names from
+a Set of People, I'd like to write `Set.map (fun p -> p.first) people`
+but the result of `Set.map` on people must be the same type as people.
+So, then I map over `Set.elements` but that generates an intermediate
+list that is really unnecessary, especially if the result is to be
+filtered before stuffing into some kind of collected result.
+
+So, the base types (Set, Seq, List) exist, but did not work well
+together for me; or I'm misunderstanding how they work together.
+

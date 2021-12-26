@@ -18,14 +18,8 @@ module ChangeSet = Set.Make(
     type t = change
   end );;
 
-let example = { x = 1; y = -1 };;
-let s = LiveSet.singleton example;;
-
 let make_coord a b =
   { x = a; y = b };;
-let r_pentomino = [
-    (0, 0); (0, 1); (1, 1); (-1, 0); (0, -1);
-  ];;
 
 let enlarge box coord =
   let (minx, miny, maxx, maxy) = box in
@@ -123,14 +117,15 @@ let toLive xy =
   live (make_coord x y)
 ;;
 
-let run1 x =
+let run1 ignored =
+  let r_pentomino = [(0, 0); (0, 1); (1, 1); (-1, 0); (0, -1)] in
   let startChanges = ChangeSet.of_list (List.map toLive r_pentomino) in
   run generations (LiveSet.empty) startChanges;;
 
 let time f =
-  let t = Unix.gettimeofday () in
+  let start = Unix.gettimeofday () in
   let res = f () in
-  let diff = Unix.gettimeofday () -. t in
+  let diff = Unix.gettimeofday () -. start in
   (res, diff)
 ;;
 
