@@ -12,3 +12,4 @@ haskell/life
 rust/life/Cargo.lock
 .idea
 zig-cache
+c/life

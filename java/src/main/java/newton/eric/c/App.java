@@ -176,7 +176,7 @@ public class App {
         Board board = new Board(ImmutableSet.of(), R_PENTOMINO);
         int generations = 1000;
         boolean showWork = false;
-        int times = 10;
+        int times = 5;
         long humanAnimationSpeedMillis = 1000 / 30;
         for (int time = 0; time < times; time++) {
             long start = System.currentTimeMillis();

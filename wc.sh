@@ -10,4 +10,11 @@ wc  \
 ./haskell/life.hs \
 ./javascript/life.js \
 ./racket/life.rkt \
+u/ruby/ruby.rb \
+./rust/life/src/main.rs \
+./elixir/life.exs \
+./kotlin/src/main/kotlin/Main.kt \
+./zig/life.zig \
+./ocaml/life.ml \
+./c/life.c \
 | sort -n

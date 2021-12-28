@@ -1,5 +1,21 @@
 #! /bin/bash
-for dir in c++ clojure go haskell java javascript kotlin python racket scala zig ; do
+for dir in \
+    c \
+    c++ \
+    clojure \
+    elixir \
+    go \
+    haskell \
+    java \
+    javascript \
+    kotlin \
+    ocaml \
+    python \
+    racket \
+    ruby \
+    rust \
+    scala \
+    zig ; do
   echo '***********'
   echo "${dir}"
   echo '***********'

@@ -63,28 +63,28 @@ run for 1000 generations.
 
 Language  | Generations/sec
 --------- | -------------
-C++       |  9615
+C         | 23158
+C++       | 17241
 Clojure   |  1438
-Elixir    |  1383
-Go        |  1562
-Haskell   |  1257
-Java      | 10000
+Elixir    |  1400
+Go        |  1620
+Haskell   |  1653
+Java      |  8771
 Javascript|   359
-Kotlin    |  5524
+Kotlin    |  4975
 OCaml     |  1858
 Python    |  3279
 Racket    |  1439
 Ruby      |   411
-Rust      |  6467
+Rust      |  6506
 Scala     |  9345
-Zig       | 11628
+Zig       | 11764
 
 The reported value is the second fastest of 5 runs. In most cases this
 was also the fastest value as well.
 
 *OMG, Haskell is a pain to benchmark. The reported value is an
 average of 5 runs.*
-
 
 ## The Experience
 
@@ -578,7 +578,7 @@ going to go back and see if there are other languages that consume
 a stream/iterator/etc with a count function that takes a predicate.
 That was a good suggestion, and a good mark for InteliJ.
 
-# Zig
+### Zig
 
 Zig, simple as the programming model is, with user-managed memory
 allocation, and limited support for higher-order functions, did
@@ -675,3 +675,39 @@ filtered before stuffing into some kind of collected result.
 So, the base types (Set, Seq, List) exist, but did not work well
 together for me; or I'm misunderstanding how they work together.
 
+### C
+
+Well, it is fast.
+
+I am comfortable in C, though it's been a while since I wrote anything
+in it. I avoided writing life in C because I knew I'd have to build
+some of the required data structurs from scratch.
+
+"Why didn't you use a library?" That's fair, and maybe I'll do a 2nd
+version that leans on a library. But, there is no dependency
+management tooling for C that is widely used, nor is there any sort of
+standard library like there is for C++ that handles these basic data
+structures. It's also an opportunity to point out the costs of error
+handling and memory management on the C programmer.
+
+Long as it is, this version only took me about 3 hours, with my creaky
+old C skills. Still, considering I've written this code over a dozen
+times already, and I already know C, it was not fast to write.
+
+It helped having written the Rust and Zig versions in advance. I knew
+there were some properties of the problem that informed my choices of
+data structures. For example, it's possible to get a bound on the
+number of changes per generation, so that data structure does not have
+to be re-allocated while computing the change list. Having written the
+problem in-the-most-functional-style-possible before, it was easy to
+have `const` correct data structures and operations on them.
+
+This is a tiny problem, and it is well-suited to being written in C:
+integers, counting and conditionals. Still, there's a bunch of code
+duplication in this short exercise:
+ * enumerating the neighbor offsets
+ * iterating over the hash map
+ * deallocating memory under error conditions
+
+These could be tightened up a bit, but that's not going to improve the
+readabability much.
