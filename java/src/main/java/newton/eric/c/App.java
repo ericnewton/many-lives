@@ -10,10 +10,10 @@ import java.util.stream.Stream;
 
 public class App {
     enum How { Die, Live }
-    private static class Position {
+    private static class Coord {
         public final int x;
         public final int y;
-        public Position(int x, int y) {
+        public Coord(int x, int y) {
             this.x = x;
             this.y = y;
         }
@@ -28,10 +28,10 @@ public class App {
             if (this == o) {
                 return true;
             }
-            if (!(o instanceof Position)) {
+            if (!(o instanceof Coord)) {
                 return false;
             }
-            Position position = (Position) o;
+            Coord position = (Coord) o;
             return x == position.x && y == position.y;
         }
 
@@ -43,23 +43,23 @@ public class App {
 
     private static class Change {
         public final How how;
-        public final Position position;
-        public Change(How how, Position position) {
+        public final Coord position;
+        public Change(How how, Coord position) {
             this.how = how;
             this.position = position;
         }
     }
 
     private static class Board {
-        final ImmutableSet<Position> alive;
+        final ImmutableSet<Coord> alive;
         final Collection<Change> changes;
-        public Board(ImmutableSet<Position>  alive, Collection<Change> changes) {
+        public Board(ImmutableSet<Coord>  alive, Collection<Change> changes) {
             this.alive = alive;
             this.changes = changes;
         }
     }
-    private static Position p(int x, int y) {
-        return new Position(x, y);
+    private static Coord p(int x, int y) {
+        return new Coord(x, y);
     }
     private static final int[][] R_PENTOMINO_PAIRS = new int[][]{
             {0, 0}, {0, 1}, {1, 1}, {-1, 0}, {0, -1}
@@ -76,8 +76,8 @@ public class App {
         System.out.print(HOME_CURSOR);
     }
 
-    private static Pair<Position, Position> boundBox(Board board) {
-        ImmutableSet<Position> lst = board.alive;
+    private static Pair<Coord, Coord> boundBox(Board board) {
+        ImmutableSet<Coord> lst = board.alive;
         if (lst.isEmpty()) {
             return Pair.of(p(0, 0), p(1, 1));
         }
@@ -89,7 +89,7 @@ public class App {
     }
 
     private static void printBoard(Board board) {
-        Pair<Position, Position> bbox = boundBox(board);
+        Pair<Coord, Coord> bbox = boundBox(board);
         for (int y = bbox.getRight().y; y >= bbox.getLeft().y; y--) {
             for (int x = bbox.getLeft().x; x <= bbox.getRight().x; x++) {
                 if (board.alive.contains(p(x, y))) {
@@ -103,9 +103,9 @@ public class App {
     }
 
     // apply the kill/resurrection set to the live set
-    private static ImmutableSet<Position> applyUpdates(ImmutableSet<Position> alive,
-                                                       Collection<Change> updates) {
-        Set<Position> result = Sets.newHashSet(alive);
+    private static ImmutableSet<Coord> applyUpdates(ImmutableSet<Coord> alive,
+						    Collection<Change> updates) {
+        Set<Coord> result = Sets.newHashSet(alive);
         updates.forEach(c -> {
             if (c.how == How.Die) {
                 result.remove(c.position);
@@ -117,8 +117,8 @@ public class App {
     }
 
     // generate the eight neighbor positions of a given position
-    private static ImmutableSet<Position> eight(Position position) {
-        ImmutableSet.Builder<Position> result = ImmutableSet.builder();
+    private static ImmutableSet<Coord> eight(Coord position) {
+        ImmutableSet.Builder<Coord> result = ImmutableSet.builder();
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
                 if (i != 0 || j != 0) {
@@ -130,7 +130,7 @@ public class App {
     }
 
     // generate the set of all affected neighbors for a ChangeSet
-    private static ImmutableSet<Position> neighbors(Collection<Change> changes) {
+    private static ImmutableSet<Coord> neighbors(Collection<Change> changes) {
        return changes.stream()
                 .map(c -> c.position)
                 .flatMap(pos -> eight(pos).stream())
@@ -138,7 +138,7 @@ public class App {
     }
 
     // compute the state change for the next generation at a given position
-    private static Change change(ImmutableSet<Position> alive, Position pos) {
+    private static Change change(ImmutableSet<Coord> alive, Coord pos) {
         final int liveCount = (int) eight(pos).stream().filter(alive::contains).count();
         if (liveCount == 2) {
             return null;
@@ -156,7 +156,8 @@ public class App {
     }
 
     // get the set of changes to apply to the next generation for a set of points
-    private static Collection<Change> computeChanges(ImmutableSet<Position> alive, ImmutableSet<Position> affected) {
+    private static Collection<Change> computeChanges(ImmutableSet<Coord> alive,
+						     ImmutableSet<Coord> affected) {
         return affected.stream()
                 .parallel()
                 .map(pos -> change(alive, pos))
@@ -166,8 +167,8 @@ public class App {
 
     // compute a new board from the old board
     private static Board nextGeneration(Board board) {
-        ImmutableSet<Position> alive = applyUpdates(board.alive, board.changes);
-        ImmutableSet<Position> affected = neighbors(board.changes);
+        ImmutableSet<Coord> alive = applyUpdates(board.alive, board.changes);
+        ImmutableSet<Coord> affected = neighbors(board.changes);
         Collection<Change> updates = computeChanges(alive, affected);
         return new Board(alive, updates);
     }

@@ -5,9 +5,9 @@
   (:gen-class))
 
 
-; a pos is a 2-integer 2-tuple vector, like [0, 0]
-; alive is a set of alive positions
-; changes is a set of [:key pos] pairs (vectors) where
+; a ooord is a 2-integer 2-tuple vector, like [0, 0]
+; alive is a set of alive coords
+; changes is a set of [:key coord] pairs (vectors) where
 ; :key is one of [:birth :die]
 (defrecord Board [alive changes])
 
@@ -18,9 +18,9 @@
         :when (not (and (zero? x) (zero? y)))]
     [x, y]))
 
-; the locations of the neighbors of the given position
-(defn- eight-neighbor-positions [pos]
-  (let [[x y] pos]
+; the locations of the neighbors of the given coord
+(defn- eight-neighbor-coords [coord]
+  (let [[x y] coord]
     (map
      (fn [offsets]
        (let [[xoffset, yoffset] offsets]
@@ -29,16 +29,16 @@
 
 ; returns the coordiants and their neighbors
 (defn- consider [coords]
-  (into #{} (comp (mapcat eight-neighbor-positions)) coords))
+  (into #{} (comp (mapcat eight-neighbor-coords)) coords))
 
 ; return the number of living neighbors for the given position
-(defn- count-neighbors [board pos]
+(defn- count-neighbors [board coord]
   (let [alive (:alive board)]
-    (count (keep alive (eight-neighbor-positions pos)))))
+    (count (keep alive (eight-neighbor-coords coord)))))
 
 (defn- changes [board key]
   (let [changes (:changes board)
-        match-key (fn [[how pos]] (= how key))]
+        match-key (fn [[how coord]] (= how key))]
     (into #{} (comp (filter match-key) (map second)) (:changes board))))
 
 ; construct a new board after applying the to_birth and to_die sets
@@ -48,20 +48,20 @@
                (changes board :die))]
     (Board. alive #{})))
 
-(defn- compute-to-do [board pos]
-  (let [count (count-neighbors board pos)
+(defn- compute-change [board coord]
+  (let [count (count-neighbors board coord)
         alive (:alive board)]
     (cond
-      (= count 3) (if (alive pos) [] [[:birth pos]])
+      (= count 3) (if (alive coord) [] [[:birth coord]])
       (= count 2) []
-      :else (if (alive pos) [[:die pos]] []))))
+      :else (if (alive coord) [[:die coord]] []))))
 
 ; compute the next board from the current board
 (defn- next-generation [board]
   (let [changes (into [] (map second) (:changes board))
         coords (consider changes)
         newboard (apply-changes board)
-        updates (mapcat #(compute-to-do newboard %1) coords)]
+        updates (mapcat #(compute-change newboard %1) coords)]
     (assoc newboard :changes updates)))
 
 (defn- compute-bbox [board]
@@ -79,13 +79,14 @@
         (if ((:alive board) [x y]) (print \*) (print \space)))
       (println))))
 
-(def r-pentomino (set (map (fn [pos] [:birth pos]) #{[0 0] [0 1] [1 1] [-1 0] [0 -1]})))
-
+(def r-pentomino (set (map (fn [coord] [:birth coord]) #{[0 0] [0 1] [1 1] [-1 0] [0 -1]})))
+(def esc (char 27))
+  
 (defn- clear-screen []
   ; clear screen
-  (print (str (char 27) "[2J"))
+  (print (str esc "[2J"))
   ; move cursor to the top left corner of the screen
-  (print (str (char 27) "[;H")))
+  (print (str esc "[;H")))
 
 ; seconds since the epoch as a double
 (defn- now []

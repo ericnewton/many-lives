@@ -73,8 +73,8 @@ neighbors pos =
     (posx, posy) = (coord_x pos, coord_y pos)
 
 considerSet :: [Coord] -> Set.Set(Coord)
-considerSet positions =
-  Set.fromList (concat (map neighbors positions))
+considerSet coords =
+  Set.fromList (concat (map neighbors coords))
 
 -- rules of life
 change :: Int -> State -> DestinyType

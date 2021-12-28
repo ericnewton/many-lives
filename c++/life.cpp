@@ -166,12 +166,14 @@ const int OFFSETS[][2] = {
   {-1, 1},  {0,  1}, {1,  1},
   {-1, 0},           {1,  0},
   {-1, -1}, {0, -1}, {1, -1}
-};  
+};
+const size_t OFFSET_COUNT = sizeof(OFFSETS)/sizeof(OFFSETS[0]);
 
 // generate the eight neighbor positions of a given position
 vector<Position> eight(const Position & position) {
   vector<Position> result;
-  for (size_t i = 0; i < sizeof(OFFSETS)/sizeof(OFFSETS[0]); i++) {
+  result.reserve(OFFSET_COUNT);
+  for (size_t i = 0; i < OFFSET_COUNT; i++) {
     result.push_back(Position(position.x + OFFSETS[i][0],
 			      position.y + OFFSETS[i][1]));
   }
@@ -181,6 +183,7 @@ vector<Position> eight(const Position & position) {
 // generate the set of all affected neighbors for a ChangeSet
 Positions neighbors(const vector<Change> & changes) {
   Positions result;
+  result.reserve(changes.size() * 8);
   for (auto & change : changes) {
     for (auto & pos : eight(change.position)) {
       result.insert(pos);
@@ -258,9 +261,9 @@ int main(int argc, char **argv) {
       }
     }
     auto end = std::chrono::system_clock::now();
-    auto diff_ms = chrono::duration_cast<chrono::milliseconds>(end - start);
-    auto diff_s = diff_ms.count() / 1000.;
-    cout << (generations / diff_s) << " " << diff_ms.count() << " generations / sec" << endl;
+    auto diff_us = chrono::duration_cast<chrono::microseconds>(end - start);
+    auto diff_s = diff_us.count() / 1000. / 1000.;
+    cout << (generations / diff_s) << " generations / sec" << endl;
   }
   return 0;
 }

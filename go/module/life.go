@@ -7,25 +7,25 @@ import "github.com/dropbox/godropbox/container/set"
 
 const showWork = false;
 
-type How int
+type Destiny int
 const (
-	Live How = iota
+	Live Destiny = iota
 	Die
 )
 
-type Pos struct {
+type Coord struct {
 	x int
 	y int
 }
 
-type MinMax struct {
-	min Pos
-	max Pos
+type BoundingBox struct {
+	lowerLeft Coord
+	upperRight Coord
 }
 
 type Change struct {
-	how How
-	pos Pos
+	destiny Destiny
+	pos Coord
 }
 
 type Board struct {
@@ -37,13 +37,13 @@ func applyChanges(board Board) set.Set {
 	toLive := set.NewSet()
 	toDie := set.NewSet()
 	for _, change := range board.updates {
-		if change.how == Live {
+		if change.destiny == Live {
 			toLive.Add(change.pos)
 		} else {
 			toDie.Add(change.pos)
 		}
 	}
-	return set.Subtract(set.Union(board.liveSet, toLive), toDie)
+	return set.Union(set.Subtract(board.liveSet, toDie), toLive)
 }
 
 func min(a int, b int) int {
@@ -60,22 +60,22 @@ func max(a int, b int) int {
 	return b;
 }
 
-func getBoundingBox(liveSet set.Set) MinMax {
+func getBoundingBox(liveSet set.Set) BoundingBox {
 	if (liveSet.Len() == 0) {
-		return MinMax{Pos{0, 0}, Pos{1, 1}}
+		return BoundingBox{Coord{0, 0}, Coord{1, 1}}
 	}
 	minx := math.MaxInt32
 	maxx := math.MinInt32
 	miny := math.MaxInt32
 	maxy := math.MinInt32
 	for v := range liveSet.Iter() {
-		p := v.(Pos);
+		p := v.(Coord)
 		minx = min(minx, p.x)
 		maxx = max(maxx, p.x)
 		miny = min(miny, p.y)
 		maxy = max(maxy, p.y)
 	}
-	return MinMax{Pos{minx, miny}, Pos{maxx, maxy}}
+	return BoundingBox{Coord{minx, miny}, Coord{maxx, maxy}}
 }
 
 func clearScreen() {
@@ -84,24 +84,26 @@ func clearScreen() {
 
 func printBoard(liveSet set.Set) {
 	bbox := getBoundingBox(liveSet)
-	for y := bbox.max.y; y >= bbox.min.y; y-- {
-		for x := bbox.min.x; x <= bbox.max.x; x++ {
-			if liveSet.Contains(Pos{x, y}) {
+	for y := bbox.upperRight.y; y >= bbox.lowerLeft.y; y-- {
+		for x := bbox.lowerLeft.x; x <= bbox.upperRight.x; x++ {
+			if liveSet.Contains(Coord{x, y}) {
 				fmt.Print("@")
 			} else {
 				fmt.Print(" ")
 			}
 		}
-		fmt.Println();
+		fmt.Println()
 	}
 }
 
-func eight(pos Pos) []Pos {
-	var result []Pos;
+func eight(pos Coord) []Coord {
+	var result = make([]Coord, 8);
+	var i = 0;
 	for x := -1; x <= 1; x++ {
 		for y := -1; y <= 1; y++ {
 			if x != 0 || y != 0 {
-				result = append(result,	Pos{pos.x + x, pos.y + y})
+				result[i] = Coord{pos.x + x, pos.y + y};
+				i = i + 1;
 			}
 		}
 	}
@@ -121,7 +123,7 @@ func neighbors(changes[] Change) set.Set {
 func computeChanges(liveSet set.Set, affected set.Set) []Change {
 	var result []Change;
 	for a := range affected.Iter() {
-		pos := a.(Pos);
+		pos := a.(Coord);
 		count := 0
 		for _, n := range eight(pos) {
 			if liveSet.Contains(n) {
@@ -156,7 +158,7 @@ func next(board Board) Board {
 func life() {
 	start := time.Now()
 	const generations = 1000;
-	r_pentomino := [...]Pos{
+	r_pentomino := [...]Coord{
 		{0, 0}, {0, 1}, {1, 1}, {-1, 0}, {0, -1},
 	};
 	r_changes := []Change{}
@@ -176,11 +178,8 @@ func main() {
 	if showWork {
 		life()
 	} else {
-		life()
-		life()
-		life()
-		life()
-		life()
+		for i := 0; i < 5; i++ {
+			life()
+		}
 	}
-		
 }

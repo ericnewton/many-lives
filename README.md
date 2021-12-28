@@ -64,10 +64,10 @@ run for 1000 generations.
 Language  | Generations/sec
 --------- | -------------
 C         | 23158
-C++       | 17241
+C++       | 28039
 Clojure   |  1438
 Elixir    |  1400
-Go        |  1620
+Go        |  1923
 Haskell   |  1653
 Java      |  8771
 Javascript|   359
@@ -206,17 +206,23 @@ small program like Life.
 I attempted to switch from using tuples for small data types to
 `namedtuples` to improve readability, but performance suffered.
 
+The limits of the CPython implementation are unlikely to provide
+performance improvements with multi-threading, and the nature of the
+problem does not lend itself to other ways of making Python programs
+execute in parallel.
+
 ### C++
 
 I've not programmed professionally in C++ for years. It was a struggle
 to re-learn all the little idiosyncrasies of the language as I cobbled
 together a reasonable implementation. 
 
-This version was easily the longest and most difficult to write. I had
-to implement functions just to print anything but primitive types. If
-I wanted to see the LiveSet, I needed to write a loop to print the
-set. In all the other languages I could just print a set and I'd get
-something useful to use while debugging.
+This version was easily the longest and most difficult to write (to
+this point, looking at you Haskell). I had to implement functions just
+to print anything but primitive types. If I wanted to see the LiveSet,
+I needed to write a loop to print the set. In all the other languages
+I could just print a set and I'd get something useful to use while
+debugging.
 
 Error messages for template errors have improved in the last 20 years,
 but I was still rewarded with a page of errors from a template
@@ -261,10 +267,12 @@ too involved, I'd be happy to change the code.
 
 I did not have the time or inclination to put effort into writing
 parallel version, though I did spend time doing so for Clojure, Scala,
-Java and Haskell.  The limits of the CPython implementation are
-unlikely to provide performance improvements with multi-threading, and
-the nature of the problem does not lend itself to other ways of making
-Python programs execute in parallel.
+Java and Haskell.
+
+After writing several other implementations, like the one in C and
+Jig, I've found performance to be sensitive to reallocation, so
+tweaking `reserve` sizes finally improved performance to the level
+you'd expect from C++.
 
 ### Haskell
 
@@ -627,9 +635,9 @@ like C++ template traits. Or java interfaces.  It provides functions
 that are needed by the datastructure data types and those functions
 have arguments like `self` or `This`.
 
-I never had an crash with a null pointer, or for that matter, any
-other runtime crash, which is that basic premise of Zig. Development
-went about as fast as C++, and would have been faster with more online
+I never had a crash with a null pointer, or for that matter, any other
+runtime crash, which is that basic premise of Zig. Development went
+about as fast as C++, and would have been faster with more online
 examples or library documentation.
 
 The compiler could complain more about unused variables, imports and
@@ -646,11 +654,11 @@ funtions with tuples `f(a, b)` vs. `(f a b)`. The compiler complained
 about types, and I was completely lost on reading the type information
 presented based on what I had provided.
 
-Other than type confusion when using the wrong syntax, it went alright.
-It took me about as long to learn how to create and print basic data
-structures as it took me to write the actual logic.  But this is after
-spilling out many functional versions, especially grinding out the 
-Haskell version.
+Other than type confusion when using the wrong syntax, it went
+alright.  It took me about as long to learn how to create and print
+basic data structures as it took me to write the actual logic.  But
+this is after writing out many functional versions, especially
+grinding out the Haskell version.
 
 I used taureg-mode in emacs, which was fine, but nothing special.
 Auto indentation let me know when my syntax was wrong, which was
