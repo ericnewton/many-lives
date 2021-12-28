@@ -677,6 +677,9 @@ together for me; or I'm misunderstanding how they work together.
 
 ### C
 
+[A programming language is low level when its programs require attention to the irrelevant.|
+ http://www.cs.yale.edu/homes/perlis-alan/quotes.html]
+
 Well, it is fast.
 
 I am comfortable in C, though it's been a while since I wrote anything
