@@ -17,4 +17,5 @@ u/ruby/ruby.rb \
 ./zig/life.zig \
 ./ocaml/life.ml \
 ./c/life.c \
+./swift/life.swift \
 | sort -n

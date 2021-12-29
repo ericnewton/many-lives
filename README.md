@@ -78,6 +78,7 @@ Racket    |  1439
 Ruby      |   411
 Rust      |  6506
 Scala     |  9345
+Swift     |  1804
 Zig       | 11764
 
 The reported value is the second fastest of 5 runs. In most cases this
@@ -722,3 +723,5 @@ duplication in this short exercise:
 
 These could be tightened up a bit, but that's not going to improve the
 readabability much.
+
+### Swift
