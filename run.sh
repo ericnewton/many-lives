@@ -15,6 +15,7 @@ for dir in \
     ruby \
     rust \
     scala \
+    swift \
     zig ; do
   echo '***********'
   echo "${dir}"
