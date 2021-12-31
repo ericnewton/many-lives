@@ -67,6 +67,7 @@ C         | 23158
 C++       | 28039
 Clojure   |  1438
 Elixir    |  1400
+F#        |   806
 Go        |  1923
 Haskell   |  1653
 Java      |  8771
@@ -725,3 +726,67 @@ These could be tightened up a bit, but that's not going to improve the
 readabability much.
 
 ### Swift
+
+Very few problems. Online documentation was pretty good. Error
+messages were good. Used emacs swift-mode for editing.
+
+There are some interesting language choices. The whole "named
+parameter" bit was surprising, and I don't know if I like it or if
+it's brittle. Leaning towards liking it for overloading.
+
+As I was coding along, I was guessing syntax. I found declaring a
+variable of a type is easy enough:
+
+```
+   var i : Int = 0;
+```
+
+Same for function arguments:
+
+```
+   func f(i : Int) {
+```
+
+But the return value?  That uses an arrow (`->`):
+
+```
+  func f(i : Int) -> Int {
+```
+
+Of course, I guessed it would be:
+```
+  // not correct
+  func f(i : Int) : Int {
+```
+
+Why the arrow over a colon here?
+
+It was nice that `map`, `flatMap`, immutable values and the rest of
+the functional goodness was available. I guessed at how reduce worked,
+and got it correct.
+
+I find myself liking the `{ $0 }` for lambdas. That simplified
+reference is usually enough and there's no weird syntax like `{|arg|
+code }` or `{ arg -> code }`. The dollar sign makes it clear that
+we're getting some value from the context since it's not a legal
+variable name elsewhere.
+
+Performance isn't great, but I just found one optimization flag, and
+haven't investigated other tweaks.
+
+### F#
+
+Fastest language to write: basically copy-and-modify the OCaml version.
+Took me about as long to download the environment as it did to write Life
+in F#!
+
+That said, F# was easier to write than OCaml, primarily due to the Set 
+type infering the type parameter. It was nice to have portable, convenient 
+and well-documented methods for sleeping and timing.
+
+Error messages, that I saw, were easy to read. VisualStudio was used to 
+edit because it came with the F# environment. 
+
+Performance is not good; I'm not sure what I'm doing wrong, but it's surprisingly
+bad for a strongly typed compiled language.  I made some attempt to compile
+with optimization (see `run.sh`), which gave it a 30% boost.

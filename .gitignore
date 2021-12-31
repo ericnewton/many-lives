@@ -13,3 +13,7 @@ rust/life/Cargo.lock
 .idea
 zig-cache
 c/life
+.vs
+bin
+*.sln
+obj
