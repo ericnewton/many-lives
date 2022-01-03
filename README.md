@@ -64,6 +64,7 @@ run for 1000 generations.
 Language  | Generations/sec
 --------- | -------------
 C         | 23158
+C#        |  1049
 C++       | 28039
 Clojure   |  1438
 Elixir    |  1400
@@ -790,3 +791,60 @@ edit because it came with the F# environment.
 Performance is not good; I'm not sure what I'm doing wrong, but it's surprisingly
 bad for a strongly typed compiled language.  I made some attempt to compile
 with optimization (see `run.sh`), which gave it a 30% boost.
+
+### C#
+
+Like F# is with OCaml, I thought that C# would be a review of Java. I
+was wrong. Where I'm equally uneasy in OCaml and F#, I'm quite fluent
+in Java (and all it's supporting packages), but C# is an ever growing
+mystery for me.
+
+I struggled to know the best way to make things immutable, especially
+collections. When I switched from using `HashSet` to
+`ImmutableHashSet` performace dropped by 30%. This made C# only
+slightly faster than Javascript. This can't be the best a functional
+C# can do: there's nothing in the way of the `ImmutableHashMap` that
+the algorithm does that could not be optimized away.
+
+I have to say I really liked the LINQ stuff.  I don't really
+understand it, so I'm treating it like a way to do a list
+comprehension. It seems to be Functional, in that it works on
+immutable data structures and returns one. It was a reasonable
+substitue for a `map` function.
+
+The `var` keyword and type inference is nice. I like that I can leave
+the type off a collection:
+
+```
+var List<Thing> things = new();
+```
+
+or
+```
+var things = new List<Thing>();
+```
+
+Like Java, the lack of a typedef hurts: the method signatues that take
+template types get wordy and long:
+
+```
+private static IEnumerable<Change> ComputeUpdates(ISet<Coord> liveSet, ISet<Coord> neighbors)
+```
+
+It could be worse: it could be `IImmutableSet<Coord>`.
+
+I found it strange that I couldn't put free-floating code and
+constants in the namespace, outside of a class. I wish I knew why. My
+mental model of what's going on in C# doesn't match my guesses, yet.
+
+I was hoping I could do things on the stack with value types, so I
+wouldn't have to create them constantly on the heap. I don't see how
+this is done.
+
+It's nice that the HashMap can figure out `hash` and `equals` without
+having to supply them.  The `readonly` keyword is nice, but it's too
+bad its not the default.
+
+Maybe the MacOS version of `dotnet` I have is a translated x86?  I
+can't imagine that this performance is normal. It would explain the
+slowness of F#, too.

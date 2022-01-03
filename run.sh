@@ -3,6 +3,7 @@ for dir in \
     c \
     c++ \
     clojure \
+    csharp \
     elixir \
     go \
     haskell \
