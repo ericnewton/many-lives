@@ -17,6 +17,7 @@ for dir in \
     rust \
     scala \
     swift \
+    typed-racket \
     zig ; do
   echo '***********'
   echo "${dir}"

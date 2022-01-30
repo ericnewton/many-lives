@@ -18,4 +18,5 @@ u/ruby/ruby.rb \
 ./ocaml/life.ml \
 ./c/life.c \
 ./swift/life.swift \
+./typed-racket/typed-life.rkt \    
 | sort -n

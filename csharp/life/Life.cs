@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+// I tried IImmutableSet/ImmutableHash map and it was 3x slower!
+// using System.Collections.Immutable;
 using System.Linq;
 
 namespace life
@@ -55,12 +57,14 @@ namespace life
             ISet<Coord> liveSet,
             IEnumerable<Change> changes)
         {
+            var toDie =
+                from c in changes where c.destiny == Destiny.Die select c.coord
+                ;
+            var toLive =
+                from c in changes where c.destiny == Destiny.Live select c.coord
+                ;
             var result = new HashSet<Coord>(liveSet);
-            IEnumerable<Coord> toDie =
-                from c in changes where c.destiny == Destiny.Die select c.coord;
             result.ExceptWith(toDie);
-            IEnumerable<Coord> toLive =
-                from c in changes where c.destiny == Destiny.Live select c.coord;
             result.UnionWith(toLive);
             return result;
         }
@@ -110,7 +114,7 @@ namespace life
 
         private static IEnumerable<Coord> Eight(Coord c)
         {
-            List<Coord> result = new(8);
+            var result = new List<Coord>(8);
             foreach (var y in offsets)
             {
                 foreach (var x in offsets)
@@ -141,7 +145,7 @@ namespace life
 
         private static IEnumerable<Change> ComputeUpdates(ISet<Coord> liveSet, ISet<Coord> neighbors)
         {
-            var result = new HashSet<Change>(neighbors.Count);
+            var result = new List<Change>(neighbors.Count);
             foreach (var n in neighbors)
             {
                 switch (NeighborCount(liveSet, n))
@@ -167,9 +171,10 @@ namespace life
 
         private static void Run()
         {
-            ISet<Coord> liveSet = new HashSet<Coord>();
             var updates = from c in rPentomino
                           select new Change(c, Destiny.Live);
+            ISet<Coord> liveSet = new HashSet<Coord>();
+
             foreach (int generation in Enumerable.Range(1, GENERATIONS))
             {
                 liveSet = ApplyUpdates(liveSet, updates);
@@ -190,7 +195,7 @@ namespace life
             }
             else
             {
-                foreach (int _i in Enumerable.Range(0, 5))
+                foreach (int _unused in Enumerable.Range(0, 5))
                 {
                     var start = DateTime.Now;
                     Run();

@@ -28,7 +28,6 @@ haven't used the language in years.
 
 ## The Algorithm
 
-
 The implementation of Life uses a Set to represent the sparse array of
 cells that are alive in any one generation. The set of changes for the
 next generation are computed from the changes used in the last
@@ -81,6 +80,7 @@ Ruby      |   411
 Rust      |  6506
 Scala     |  9345
 Swift     |  1804
+Typed Racket| 1289
 Zig       | 11764
 
 The reported value is the second fastest of 5 runs. In most cases this
@@ -148,7 +148,7 @@ declarations:
 person = new Person();
 ```
 
-and ask the IDE just add the type to make a complete declaration. I
+`and ask the IDE just add the type to make a complete declaration. I
 like strong typing, I just don't like redundancy.
 
 However, I found myself really liking Scala's strong typing. I found
@@ -518,9 +518,9 @@ I used type aliases for the different data structures, ranges for
 constant loops. The iterator/map/filter functional constructs are
 similar enough to those in Java that I was able to adapt easily.
 
-Performance is good, though not quite as fast as the Java/Scala and
-C++ versions. And, as always, I could be doing something wrong, since
-this is my very first Rust program.
+Performance is good, though not quite as fast as the C++ version. And,
+as always, I could be doing something wrong, since this is my very
+first Rust program.
 
 Tooling was pretty good: installing cargo and building the project was
 simple enough, though I did not end up using any packages outside of
@@ -788,9 +788,10 @@ and well-documented methods for sleeping and timing.
 Error messages, that I saw, were easy to read. VisualStudio was used to 
 edit because it came with the F# environment. 
 
-Performance is not good; I'm not sure what I'm doing wrong, but it's surprisingly
-bad for a strongly typed compiled language.  I made some attempt to compile
-with optimization (see `run.sh`), which gave it a 30% boost.
+Performance is not good; I'm not sure what I'm doing wrong, but it's
+surprisingly bad for a strongly typed compiled language.  I made some
+attempt to compile with optimization (see `run.sh`), which gave it a
+30% boost.
 
 ### C#
 
@@ -843,8 +844,84 @@ this is done.
 
 It's nice that the HashMap can figure out `hash` and `equals` without
 having to supply them.  The `readonly` keyword is nice, but it's too
-bad its not the default.
+bad it's not the default.
 
-Maybe the MacOS version of `dotnet` I have is a translated x86?  I
-can't imagine that this performance is normal. It would explain the
-slowness of F#, too.
+The Range function takes start and count values. Every other language
+that supports such an iterator takes start and end, which I find more
+intuitive. It was so expected that I just assumed that's what it took
+without reading very carefully.
+
+I just verified that the MacOS version of dotnet is generating x86
+executables, and not Mac ARM ones.  That helps explain the poor
+performance of C# and F#.
+
+Like F#, the C# code was written in VisualStudio.
+
+### Typed Racket
+
+The idea of a strongly typed (or, staticly type checked) lisp variant
+was interesting. I'm familiar with optional typing in Python, and
+wanted to give it a try.
+
+The implementation is a bit different. Instead of relying on lists for
+simple data structures, I used the `struct` constructor to define new
+types. In many ways, I think this improved the code.  The random
+appaearance of list decomposition methods like `(car c)` changed into
+`(Coord-x c)` which provides a lot more context for the reader.
+
+Converting the code was harder than my experience using type
+annotations in Python. I found that one of the library functions I was
+using (`in-inclusive-range`) wasn't type annotated, so I needed to
+define annotations for it. The type system seemed very confused by the
+two-loop `for*/list` comprehension, so I re-wrote it as nested `for`
+expressions.
+
+The rest went surprisingly well. The notation is hard to read, but
+everything is hard when it's new. At some point the typing helped me
+convert the code from lists to structs.
+
+The last problem I had was that structs, by default, do not export
+enough features to support set membership tests.  Adding the magic
+`#:transparent` to the struct definition fixed it, with the bonus of
+giving me useful printable representations. The type system did not
+save me from this mistake, and it would have been nice if it could.
+
+Error messages for type errors got a little hairy, but it wasn't
+overwhelming. They were easier for me to understand than Haskell/F#
+because the typing wasn't interlaced with types created via partial
+function application. That is, I ever had to see type expressions that
+were a result of using too few arguments to a method. It would just
+complain that I hadn't provided enough arguments.  Haskell, by
+contrast, would complain of a type mismatch because I was improperly
+using a new function that was the result of too few arguments.
+
+Typed Racket seems to give up at a lambda definition. It might give up
+on all functions, but I was careful to provide type annotations to the
+functions defined at package scope. The type checker seemed to think
+that all my lambda functions took values of type `Any` even if it was
+perfectly knowable what it required from the functions used within. I
+don't dislike providing expected types to functions as a reasonable
+approach to type annotations. At the packet level, it makes for
+reasonable documentation.  It complicates the lambda definition,
+though.
+
+The level of typing defined for values is pretty impressive. I'm not
+sure it helped to know I had a Zero instead of an Integer, but it
+didn't get in the way or cause me any problems, either.
+
+To print the Life board, which I use for testing and validation, each
+version scans the set of living cells and determines the bounding
+box. I converted this version to use a technique I use in most of the
+other implementations: apply a function "expand-box" to the current
+bounding box for each cell. In most other languages I start with a
+tiny box, which is defined using maximum values for integer.  Since
+Racket doesn't have a defined maximum (or minimum) value, I had to
+invent one.  Alternatively I could define the box using the first cell
+position, but depending on the looping constructs, or pattern
+matching, this might be more trouble than I feel like exploring: it's
+really only used for debugging.  The plain Racket version used min/max
+functions over the set of all positions. This works, but I really like
+the functional approach of expanding the box, rather than extracting
+the components of each cell location.
+
+I used DrRacket to write this version.
