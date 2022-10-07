@@ -5,10 +5,6 @@ from collections import namedtuple
 
 Board = namedtuple('Board', ['alive', 'updates'])
 
-r_pentomino = [
-    (0, 0), (0, 1), (1, 1), (-1, 0), (0, -1)
-]
-
 def clearScreen():
     # clear screen
     print("\033[2J", end='')
@@ -49,9 +45,17 @@ def eight(coord):
     for xoff, yoff in OFFSETS:
         yield (x + xoff, y + yoff)
 
+def nine(coord):
+    for c in eight(coord):
+        yield(c)
+    yield coord
+        
 # generate the set of all affected neighbors for a ChangeSet
 def neighbors(changes):
     return set([neighbor for change, pos in changes for neighbor in eight(pos)])
+
+def affected(changes):
+    return set([neighbor for change, pos in changes for neighbor in nine(pos)])
 
 # compute the state change for the next generation at a given coord
 def computeChange(alive, coord):
@@ -74,12 +78,13 @@ def computeChanges(alive, affected):
 # compute a new board from the old board
 def nextGeneration(board):
   alive = applyUpdates(board.alive, board.updates)
-  affected = neighbors(board.updates)
-  updates = computeChanges(alive, affected)
+  affected_ = affected(board.updates)
+  updates = computeChanges(alive, affected_)
   return Board(alive, updates)
 
-def main():
-    board = Board(set(), [(True, p) for p in r_pentomino])
+def main(pattern):
+    from rle import rle
+    board = Board(set(), [(True, p) for p in rle(pattern)])
     generations = 1000
     showWork = False
     times = 1 if showWork else 5
@@ -93,4 +98,6 @@ def main():
         print(f"{generations / diff:.2f} generations / sec")
 
 if __name__ == '__main__':
-    main()
+    import sys
+    with open(sys.argv[1]) as fp:
+        main(fp.read())

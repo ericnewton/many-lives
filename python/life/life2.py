@@ -11,10 +11,6 @@ Position = namedtuple('Position', ['x', 'y'])
 Change = namedtuple('Change', ['how', 'position'])
 Board = namedtuple('Board', ['alive', 'updates'])
 
-r_pentomino = [Position(*p) for p in [
-    (0, 0), (0, 1), (1, 1), (-1, 0), (0, -1)
-]]
-
 def clearScreen():
     # clear screen
     print("\033[2J", end='')
@@ -26,7 +22,7 @@ def boundBox(board):
     if not lst:
         return (Position(0,0), Position(1,1))
     xs = set([p.x for p in lst])
-d    ys = set([p.y for p in lst])
+    ys = set([p.y for p in lst])
     return (Position(min(xs), min(ys)), Position(max(xs), max(ys)))
 
 def printBoard(board):
@@ -49,9 +45,18 @@ def eight(position):
     for xoff, yoff in OFFSETS:
         yield Position(position.x + xoff, position.y + yoff)
 
-# generate the set of all affected neighbors for a ChangeSet
+def nine(position):
+    for c in eight(position):
+        yield c
+    yield position
+
+# generate the coordinates of the neighbors for a ChangeSet
 def neighbors(changes):
     return set([neighbor for change, pos in changes for neighbor in eight(pos)])
+
+# generate the affected cells of a ChangeSet
+def affected(changes):
+    return set([neighbor for change, pos in changes for neighbor in nine(pos)])
 
 # compute the state change for the next generation at a given position
 def change(alive, pos):
@@ -75,13 +80,14 @@ def computeChanges(alive, affected):
 # compute a new board from the old board
 def nextGeneration(board):
   alive = applyUpdates(board.alive, board.updates)
-  affected = neighbors(board.updates)
-  updates = computeChanges(alive, affected)
+  affectedSet = affected(board.updates)
+  updates = computeChanges(alive, affectedSet)
   return Board(alive, updates)
 
 
-def main():
-    board = Board(set(), [Change(Live, p) for p in r_pentomino])
+def main(pattern):
+    from rle import rle
+    board = Board(set(), [Change(Live, Position(x, y)) for x, y in rle(pattern)])
     generations = 1000
     showWork = False
     times = 5
@@ -98,4 +104,6 @@ def main():
         print(f"{generations / diff:.2f} generations / sec")
 
 if __name__ == '__main__':
-    main()
+    import sys
+    with open(sys.argv[1]) as fp:
+        main(fp.read())
