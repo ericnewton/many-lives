@@ -18,12 +18,12 @@
          [ur (BBox-upperRight bbox)])
     (values (Coord-x ll) (Coord-y ll) (Coord-x ur) (Coord-y ur))))
 
-(: live (-> Coord Change))
-(define (live coord)
-  (Change 'live coord))
+(: alive (-> Integer Integer Change))
+(define (alive x y)
+  (Change 'live (Coord x y)))
 
 (define r-pentomino
-  (map live (list (Coord 0 0) (Coord 0 1) (Coord 1 1) (Coord -1 0) (Coord 0 -1))))
+  (list (alive 0 0) (alive 0 1) (alive 1 1) (alive -1 0) (alive 0 -1)))
 
 (define show-work #f)
 (define generations 1000)
@@ -91,7 +91,7 @@
 
 (: compute-affected (-> (Listof Change) (Setof Coord)))
 (define (compute-affected updates)
-  (apply set (append-map (lambda ([u : Change]) (eight (Change-coord u))) updates)))
+  (list->set (append-map (lambda ([u : Change]) (eight (Change-coord u))) updates)))
 
 (: neighbor-count (-> (Setof Coord) Coord Integer))
 (define (neighbor-count liveSet pos)
