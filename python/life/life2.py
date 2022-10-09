@@ -50,10 +50,6 @@ def nine(position):
         yield c
     yield position
 
-# generate the coordinates of the neighbors for a ChangeSet
-def neighbors(changes):
-    return set([neighbor for change, pos in changes for neighbor in eight(pos)])
-
 # generate the affected cells of a ChangeSet
 def affected(changes):
     return set([neighbor for change, pos in changes for neighbor in nine(pos)])
@@ -104,6 +100,5 @@ def main(pattern):
         print(f"{generations / diff:.2f} generations / sec")
 
 if __name__ == '__main__':
-    import sys
     with open(sys.argv[1]) as fp:
         main(fp.read())
