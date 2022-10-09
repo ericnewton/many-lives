@@ -5,7 +5,7 @@
   (:gen-class))
 
 
-; a ooord is a 2-integer 2-tuple vector, like [0, 0]
+; a Coord is a 2-integer 2-tuple vector, like [0, 0]
 ; alive is a set of alive coords
 ; changes is a set of [:key coord] pairs (vectors) where
 ; :key is one of [:birth :die]
