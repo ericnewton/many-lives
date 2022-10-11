@@ -24,7 +24,6 @@ class TestRunLengthEncoding(unittest.TestCase):
         board = life.nextGeneration(board)
         self.assertEqual(7, len(board.alive))
         board = life.nextGeneration(board)
-        life.printBoard(board)
         self.assertEqual(8, len(board.alive))
         
 
