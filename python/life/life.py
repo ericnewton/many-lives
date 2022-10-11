@@ -45,13 +45,8 @@ def eight(coord):
     for xoff, yoff in OFFSETS:
         yield (x + xoff, y + yoff)
 
-def nine(coord):
-    for c in eight(coord):
-        yield(c)
-    yield coord
-        
 def affected(changes):
-    return set([neighbor for change, pos in changes for neighbor in nine(pos)])
+    return set([neighbor for change, pos in changes for neighbor in eight(pos)])
 
 # compute the state change for the next generation at a given coord
 def computeChange(alive, coord):
@@ -78,19 +73,26 @@ def nextGeneration(board):
   updates = computeChanges(alive, affected_)
   return Board(alive, updates)
 
+def start(live):
+    # turn on the start nodes
+    birth = [(True, p) for p in live]
+    # mark the surrounding nodes as off for the complete affected set
+    death = [(False, n) for p in live for n in eight(p) if n not in live]
+    return Board(set(), birth + death)
+
 def main(pattern):
     from rle import rle
-    board = Board(set(), [(True, p) for p in rle(pattern)])
+    board = start(rle(pattern))
     generations = 1000
     showWork = False
     times = 1 if showWork else 5
     for _ in range(0, times):
-        start = time.time()
+        now = time.time()
         for i in range(0, generations):
             board = nextGeneration(board)
             if showWork:
                 printBoard(board)
-        diff = time.time() - start;
+        diff = time.time() - now;
         print(f"{generations / diff:.2f} generations / sec")
 
 if __name__ == '__main__':

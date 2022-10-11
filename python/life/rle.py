@@ -19,14 +19,13 @@ Decoder = collections.namedtuple('Decoder', 'start pos run board')
 # generate the start state from an initial offset
 def start(x, y):
     c = (x, y)
-    return Decoder(start=c, pos=c, run=0, board=[])
+    return Decoder(start=c, pos=c, run='', board=[])
 
 # the current run length
 def run(d):
-    # a run of 0 means no length prefix (or, one)
-    if d.run == 0:
+    if d.run == '':
         return 1
-    return d.run
+    return int(d.run)
 
 # generate a sequence of coords in increasing x coordinates
 def cells(d):
@@ -37,13 +36,13 @@ def cells(d):
 # move current x pos by the run
 def skip(d):
     x, y = d.pos
-    return d._replace(pos=(x + run(d), y), run=0)
+    return d._replace(pos=(x + run(d), y), run='')
 
 # generate a new state from a single character
 def decode1(d, c):
     # more digits of run
     if c >= '0' and c <= '9':
-        return d._replace(run=d.run * 10 + int(c))
+        return d._replace(run=d.run + c)
     # skip blanks
     if c == 'b':
         return skip(d)
@@ -54,7 +53,7 @@ def decode1(d, c):
     if c == '$':
         x, _ = d.start
         _, y = d.pos
-        return d._replace(pos=(x, y - run(d)), run=0)
+        return d._replace(pos=(x, y - run(d)), run='')
     if c == '!':
         return d
     raise Exception('Unknown encoding character ' + c)

@@ -2,6 +2,7 @@
   (:use [clojure.pprint :only [pprint]])
   (:use [clojure.set :only [union difference intersection]])
   (:require [clj-async-profiler.core :as prof])
+  (:require [life.rle :as rle])
   (:gen-class))
 
 
@@ -101,9 +102,15 @@
 (defn- show-nothing [board]
   nil)
 
+
+(defn- make-board [alive]
+  (let [birth (map (fn [coord] [:birth coord]) alive)
+        death (map (fn [coord] [:die coord]) (difference (consider alive) alive))]
+    (Board. #{} (concat birth death))))
+
 (defn- run [show]
   (let [generations 1000
-        start-board (Board. #{} r-pentomino)
+        start-board (make-board (rle/rle (slurp "../rle/acorn.rle")))
         start-time (now)]
     (loop [board start-board gen 0]
       (show board)

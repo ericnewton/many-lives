@@ -18,3 +18,4 @@ bin
 *.sln
 obj
 __pycache__
+.lein-failures

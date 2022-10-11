@@ -18,9 +18,9 @@ class TestRunLengthEncoding(unittest.TestCase):
 
     def test_apply_updates(self):
         acorn = [(-2, 2),
-                    (0, 1),
-                    (-3, 0), (-2, 0), (1, 0), (2, 0), (3, 0)]
-        board = life.Board(set(), [(True, p) for p in acorn])
+                 (0, 1),
+                 (-3, 0), (-2, 0), (1, 0), (2, 0), (3, 0)]
+        board = life.start(acorn)
         board = life.nextGeneration(board)
         self.assertEqual(7, len(board.alive))
         board = life.nextGeneration(board)

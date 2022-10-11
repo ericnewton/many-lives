@@ -45,14 +45,9 @@ def eight(position):
     for xoff, yoff in OFFSETS:
         yield Position(position.x + xoff, position.y + yoff)
 
-def nine(position):
-    for c in eight(position):
-        yield c
-    yield position
-
 # generate the affected cells of a ChangeSet
 def affected(changes):
-    return set([neighbor for change, pos in changes for neighbor in nine(pos)])
+    return set([neighbor for change, pos in changes for neighbor in eight(pos)])
 
 # compute the state change for the next generation at a given position
 def change(alive, pos):
@@ -80,23 +75,28 @@ def nextGeneration(board):
   updates = computeChanges(alive, affectedSet)
   return Board(alive, updates)
 
+def start(live):
+    live = {Position(x, y) for x, y in live}
+    birth = [Change(Live, p) for p in live]
+    death = [Change(Die, n) for p in live for n in eight(p) if n not in live]
+    return Board(set(), birth + death)
 
 def main(pattern):
     from rle import rle
-    board = Board(set(), [Change(Live, Position(x, y)) for x, y in rle(pattern)])
+    board = start(rle(pattern))
     generations = 1000
     showWork = False
     times = 5
     human_speed = 1/30.
     for _ in range(0, times):
-        start = time.time()
+        now = time.time()
         for i in range(0, generations):
           board = nextGeneration(board)
           if showWork:
             clearScreen()
             printBoard(board)
             time.sleep(human_speed)
-        diff = time.time() - start;
+        diff = time.time() - now
         print(f"{generations / diff:.2f} generations / sec")
 
 if __name__ == '__main__':
