@@ -73,6 +73,7 @@ Haskell   |  1653
 Java      |  8771
 Javascript|   359
 Kotlin    |  4975
+Nim       | 13698
 OCaml     |  1858
 Python    |  3279
 Racket    |  1439
@@ -925,3 +926,31 @@ the functional approach of expanding the box, rather than extracting
 the components of each cell location.
 
 I used DrRacket to write this version.
+
+### Nim
+
+Somewhere I read that Nim was similar to python so I gave it a whirl.
+The error messages from the compiler were very nice, typically readable
+and close to the true error.  In particular, the messages about generic types
+were quite readable.  I made many newbie syntax mistakes and the messages
+nearly always landed in the right location.
+
+I had one instance where I was unpacking a tuple:
+
+ let (a, b) = functionCall(data)
+
+But the error message was on the function definition.  That was 
+the only case where the error messages led me astray.
+
+I'm a little confused by the use of seq, the use of collect, and the use
+of the sugar module.  They appear to be options to do similar things, but 
+I remain confused on which is the best to use.
+
+I did not see a mechanism to get the compiler to emit file names and offsets that
+emacs might parse to support finding those lines in the compilation buffer.  
+I didn't look too hard, so maybe it just works for other people. I edited the code 
+with nim-mode in emacs.  The collect (macro?) mechanism confused it somewhat.
+
+Performance is in there with C, but the rich types and GC make it a lot 
+easier to program.
+
