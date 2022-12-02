@@ -245,12 +245,12 @@ int main(int argc, char **argv) {
   for (size_t i = 0; i < sizeof(r_pentomino) / sizeof(r_pentomino[0]); i++) {
     start.push_back(Change(Live, r_pentomino[i]));
   }
-  unique_ptr<const Board> board(new Board(Positions(), start));
   const auto generations = 1000;
   const auto showWork = false;
   const auto times = 5;
   const auto human_speed = chrono::milliseconds(1000 / 30);
   for (int time = 0; time < times; time++) {
+    unique_ptr<const Board> board(new Board(Positions(), start));
     auto start = std::chrono::system_clock::now();
     for(int i = 0; i < generations; i++) {
       board = nextGeneration(*board);

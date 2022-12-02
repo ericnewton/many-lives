@@ -1,8 +1,8 @@
 import std/[sets, sequtils, os, sugar, options, times]
 
 type
-  Coord* = object
-    x*, y*: int
+  Coord = object
+    x, y: int
 
 proc coord(x, y: int): Coord =
   return Coord(x: x, y: y)
@@ -10,12 +10,11 @@ proc coord(x, y: int): Coord =
 proc coord(p : (int, int)): Coord =
   let (x, y) = p
   return Coord(x: x, y: y)
-  
 
 type
-  Change* = object
-    alive*: bool
-    coord*: Coord
+  Change = object
+    alive: bool
+    coord: Coord
 
 proc kill(coord: Coord): Change =
   return Change(alive: false, coord: coord)
@@ -24,9 +23,9 @@ proc live(coord: Coord): Change =
   return Change(alive: true, coord: coord)
 
 type
-  Board* = object
-    alive*: HashSet[Coord]
-    updates*: seq[Change]
+  Board = object
+    alive: HashSet[Coord]
+    updates: seq[Change]
 
 proc clearScreen() =
   # clear screen
@@ -35,19 +34,19 @@ proc clearScreen() =
   stdout.write "\e[;H"
   stdout.flushFile()
 
-proc min(a: Coord, b: Coord): Coord =
+proc lowerLeft(a: Coord, b: Coord): Coord =
   return coord(min(a.x, b.x), min(a.y, b.y))
 
-proc max(a: Coord, b: Coord): Coord =
+proc upperRight(a: Coord, b: Coord): Coord =
   return coord(max(a.x, b.x), max(a.y, b.y))
 
 proc boundBox(board: Board): auto  =
-  let lst = board.alive
+  let lst = board.alive.toSeq()
   if lst.len() == 0:
     return (coord(0, 0), coord(1, 1))
-  let min = foldl(toSeq(lst), min(a, b))
-  let max = foldl(toSeq(lst), max(a, b))
-  return (min, max)
+  let ll = foldl(lst, lowerLeft(a, b))
+  let ur = foldl(lst, upperRight(a, b))
+  return (ll, ur)
 
 proc printBoard(board: Board) =
   let human_speed = int(1000 / 30)
@@ -64,7 +63,7 @@ proc printBoard(board: Board) =
   sleep(human_speed)
 
 # apply the kill/resurection set to the live set
-proc applyUpdates(alive : HashSet[Coord], updates: seq[Change]): HashSet[Coord] =
+proc applyUpdates(alive : SomeSet[Coord], updates: seq[Change]): SomeSet[Coord] =
   let toLive = updates.filterIt(it.alive).mapIt(it.coord).toHashSet()
   let toDie = updates.filterIt(not it.alive).mapIt(it.coord).toHashSet()
   return (toLive + alive) - toDie
@@ -74,18 +73,17 @@ let OFFSETS* = collect(newSeq):
       for y in -1..1:
         if x != 0 or y != 0: (x, y)
 
-iterator eight*(coord: Coord) : Coord {.inline.} =
+iterator eight(coord: Coord) : Coord {.inline.} =
   for (xoff, yoff) in OFFSETS:
     yield coord(coord.x + xoff, coord.y + yoff)
 
-
-proc affected(changes: seq[Change]): HashSet[Coord] =
+proc affected(changes: seq[Change]): SomeSet[Coord] =
   return collect(initHashSet):
     for change in changes:
       for neighbor in eight(change.coord): {neighbor}
 
 # compute the state change for the next generation at a given coord
-proc computeChange(alive: HashSet[Coord], coord: Coord): Option[Change] =
+proc computeChange(alive: SomeSet[Coord], coord: Coord): Option[Change] =
   let liveCount = eight(coord).countIt(alive.contains(it))
   if liveCount == 2:
     return none(Change)
@@ -98,7 +96,7 @@ proc computeChange(alive: HashSet[Coord], coord: Coord): Option[Change] =
   return none(Change)
 
 # get the set of changes to apply to the next generation for a set of points
-proc computeChanges(alive: HashSet[Coord], affected: seq[Coord]): HashSet[Change] =
+proc computeChanges(alive: SomeSet[Coord], affected: seq[Coord]): SomeSet[Change] =
   return affected.mapIt(computeChange(alive, it)).filterIt(it.isSome).mapIt(it.get()).toHashSet()
 
 # compute a new board from the old board
@@ -108,7 +106,7 @@ proc nextGeneration(board: Board): Board =
   let updates = computeChanges(alive, affected.toSeq())
   return Board(alive: alive, updates: updates.toSeq())
   
-proc start(live: HashSet[Coord]): Board =
+proc start(live: seq[Coord]): Board =
   # turn on the start nodes
   let birth = live.mapIt(live(it)).toHashSet()
   # mark the surrounding nodes as off for the complete affected set
@@ -121,18 +119,18 @@ proc start(live: HashSet[Coord]): Board =
   return Board(alive: empty, updates: updates.toSeq())
 
 proc main() =
-  let r_pentomino = @[(0, 0), (0, 1), (1, 1), (-1, 0), (0, -1)].mapIt(coord(it)).toHashSet()
-  var board = start(r_pentomino)
+  let r_pentomino = @[(0, 0), (0, 1), (1, 1), (-1, 0), (0, -1)].map(coord)
   let generations = 1000
   let showWork = false
   let times = (if showWork: 1 else: 5)
   for t in 1..times:
-    let now = getTime()
+    var board = start(r_pentomino)
+    let now = cpuTime()
     for i in 1..generations:
       board = nextGeneration(board)
       if showWork:
         printBoard(board)
-    let diff = getTime() - now;
-    echo generations.float * 1000.0 / diff.inMilliseconds().float, " generations / sec"
+    let diff = cputime() - now;
+    echo generations.float / diff, " generations / sec"
 
 main()

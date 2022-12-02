@@ -174,12 +174,12 @@ public class App {
     }
 
     public static void main( String[] args ) throws InterruptedException {
-        Board board = new Board(ImmutableSet.of(), R_PENTOMINO);
         int generations = 1000;
         boolean showWork = false;
         int times = 5;
         long humanAnimationSpeedMillis = 1000 / 30;
         for (int time = 0; time < times; time++) {
+	    Board board = new Board(ImmutableSet.of(), R_PENTOMINO);
             long start = System.currentTimeMillis();
             for (int gen = 0; gen < generations; gen++) {
                 board = nextGeneration(board);

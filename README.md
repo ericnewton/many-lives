@@ -73,7 +73,7 @@ Haskell   |  1653
 Java      |  8771
 Javascript|   359
 Kotlin    |  4975
-Nim       | 13698
+Nim       |  5761
 OCaml     |  1858
 Python    |  3279
 Racket    |  1439

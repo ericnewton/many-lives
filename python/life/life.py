@@ -82,11 +82,11 @@ def start(live):
 
 def main(pattern):
     from rle import rle
-    board = start(rle(pattern))
     generations = 1000
     showWork = False
     times = 1 if showWork else 5
     for _ in range(0, times):
+        board = start(rle(pattern))
         now = time.time()
         for i in range(0, generations):
             board = nextGeneration(board)
