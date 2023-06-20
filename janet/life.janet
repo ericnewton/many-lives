@@ -23,10 +23,10 @@
     c))
 
 (defn- first [a]
-  (get a 0))
+  (in a 0))
 
 (defn- second [a]
-  (get a 1))
+  (in a 1))
 
 # the offsets of the 8 neighbors
 (def- neighbor-offsets
@@ -47,12 +47,12 @@
 
 # return the number of living neighbors for the given position
 (defn- count-neighbors [alive coord]
-  (count (fn [c] (get alive c)) (eight-neighbor-coords coord)))
+  (count (fn [c] (in alive c)) (eight-neighbor-coords coord)))
 
 (defn- changes [board key]
-  (let [changes (get board :changes)
+  (let [changes (in board :changes)
         match-key (fn [[how coord]] (= how key))]
-    (frequencies (map (fn (e) (get e 1)) (filter match-key changes)))))
+    (frequencies (map (fn (e) (in e 1)) (filter match-key changes)))))
 
 (defn- make-board [alive changes]
   {:alive alive :changes changes})
@@ -60,29 +60,29 @@
 # construct a new board after applying the to_birth and to_die sets
 (defn- apply-changes [board]
   (let [alive (difference
-               (union (get board :alive) (changes board :birth))
+               (union (in board :alive) (changes board :birth))
                (changes board :die))]
     (make-board alive @{})))
 
 (defn- compute-change [alive coord]
   (let [count (count-neighbors alive coord)]
     (cond
-      (= count 3) (if (get alive coord) [] [[:birth coord]])
+      (= count 3) (if (in alive coord) [] [[:birth coord]])
       (= count 2) []
-      :else (if (get alive coord) [[:die coord]] []))))
+      :else (if (in alive coord) [[:die coord]] []))))
 
 # compute the next board from the current board
 (defn- next-generation [board]
-  (let [changes (map second (get board :changes))
+  (let [changes (map second (in board :changes))
         coords (consider changes)
         newboard (apply-changes board)
-	new-alive (get newboard :alive)
+	new-alive (in newboard :alive)
         updates (mapcat (fn [c] (compute-change new-alive c)) coords)
        ]
-    (make-board (get newboard :alive) updates)))
+    (make-board (in newboard :alive) updates)))
 
 (defn- compute-bbox [board]
-  (let [coords (keys (get board :alive))
+  (let [coords (keys (in board :alive))
         all-x (map first coords)
         all-y (map second coords)]
       (if (empty? coords) [[0 0] [1 1]]
@@ -91,11 +91,11 @@
 
 (defn- print-board [board]
   (let [[[x1 y1][x2 y2]] (compute-bbox board)
-	alive (get board :alive)
+	alive (in board :alive)
        ]
     (each y (range y2 (dec y1) -1)
       (each x (range x1 (inc x2))
-        (if (get alive [x y]) (prin "*") (prin " ")))
+        (if (in alive [x y]) (prin "*") (prin " ")))
       (print)
       (flush))))
 
