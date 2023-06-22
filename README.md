@@ -64,13 +64,15 @@ Language  | Generations/sec
 --------- | -------------
 C         | 23158
 C#        |  1049
-C++       | 28039
+C++       |  9832
 Clojure   |  1438
 Elixir    |  1400
 F#        |   806
 Go        |  1923
 Haskell   |  1653
-Java      |  8771
+Janet     |   773
+Janet(2)  |  1208
+Java      |  5128
 Javascript|   359
 Kotlin    |  4975
 Nim       |  5761
@@ -327,7 +329,7 @@ work and to track the set of living cells. Sets in javascript don't
 support storing a mutable data structure and the only aggregate value
 I see in javascript that is immutable is a string. Rather than convert
 cells to strings to store into sets, I chose to rely on the
-`immutable-js` package, which provides immutable Set and Map datatypes
+`immutable-js` package, which provides immutable Set and Map data types
 which can be used to model the data like the other languages.
 
 Interestingly, Javascript is the only runtime that didn't support
@@ -447,7 +449,7 @@ abundant. Emacs, in ruby-mode, was my editor.
 ### Elixir
 
 I have a learning disability: I continuously misspell "Elixir" as
-Elixer. Also, "Clojure" as "Closure" but I think that one is
+Elixir. Also, "Clojure" as "Closure" but I think that one is
 forgivable.
 
 Writing Life in Elixir was pretty fast and easy. Online documentation
@@ -505,8 +507,8 @@ on most of the other languages.
 ### Rust
 
 Writing code in Rust was strangely comfortable. The reference
-ownership memory model was new to me so I read the a bit about it
-before attempting to build anything.  The concepts were fairly
+ownership memory model was new to me so I read a bit about it before
+attempting to build anything.  The concepts were fairly
 straightforward, though I'll admit to a bunch of guessing when I was
 feeding code to the compiler.
 
@@ -555,7 +557,7 @@ to build my Kotlin project. It went better than my Java experience
 but I think that's only because Kotlin doesn't have ancient examples
 laying around the Internet.
 
-Kotlin was surprisinging hard for me. I was able to type in the data 
+Kotlin was surprisingly hard for me. I was able to type in the data 
 structures easily enough.  In fact, that part went very fast.
 
 I struggled getting InteliJ add the right dependency for the kotlinx 
@@ -614,17 +616,17 @@ error message below for the type errors this created.
 ```
 
 Here, the function `nextGen` returns a possible error, and the type
-`changes` does not support that. This is reminicient of the very long
+`changes` does not support that. This is reminicent of the very long
 error messages one used to get with templates in C++. That's not great.
 
 Once the program was working, I played around a little to tweak
 performance. I turned on optimization, changed the allocator, and
-tuned the HastMap capacities, and it got pretty fast.  But it's
+tuned the HashMap capacities, and it got pretty fast.  But it's
 written in a pretty low-level way, with hand-written loops, and manual
 Set (Map) operations.
 
 While I was typing this up, I checked, and it looks like arguments
-passed to functions are immuatable.  This didn't come up as I was
+passed to functions are immutable.  This didn't come up as I was
 coding because the original design was written for a functional style,
 so it was never an issue.  I altered the code to attempt to mutate a
 parameter and received an error message.  That's a nice discovery,
@@ -636,7 +638,7 @@ Speaking of doing things manually, as you start to wander off into the
 details of more complicated data structures, such as `HashMap`, you
 can see things like the Context parameter, which is starting to look
 like C++ template traits. Or java interfaces.  It provides functions
-that are needed by the datastructure data types and those functions
+that are needed by the data structure data types and those functions
 have arguments like `self` or `This`.
 
 I never had a crash with a null pointer, or for that matter, any other
@@ -654,7 +656,7 @@ reformat as you save the file, which I found that I liked.
 
 Took me a while to get into the swing of OCaml.  I got stuck on some
 basic syntax-level problems: `[a, b, c]` vs `[a; b; c]`.  I would call
-funtions with tuples `f(a, b)` vs. `(f a b)`. The compiler complained
+functions with tuples `f(a, b)` vs. `(f a b)`. The compiler complained
 about types, and I was completely lost on reading the type information
 presented based on what I had provided.
 
@@ -696,7 +698,7 @@ Well, it is fast.
 
 I am comfortable in C, though it's been a while since I wrote anything
 in it. I avoided writing life in C because I knew I'd have to build
-some of the required data structurs from scratch.
+some of the required data structures from scratch.
 
 "Why didn't you use a library?" That's fair, and maybe I'll do a 2nd
 version that leans on a library. But, there is no dependency
@@ -725,7 +727,7 @@ duplication in this short exercise:
  * deallocating memory under error conditions
 
 These could be tightened up a bit, but that's not going to improve the
-readabability much.
+readability much.
 
 ### Swift
 
@@ -782,9 +784,9 @@ Fastest language to write: basically copy-and-modify the OCaml version.
 Took me about as long to download the environment as it did to write Life
 in F#!
 
-That said, F# was easier to write than OCaml, primarily due to the Set 
-type infering the type parameter. It was nice to have portable, convenient 
-and well-documented methods for sleeping and timing.
+That said, F# was easier to write than OCaml, primarily due to the Set
+type inferring the type parameter. It was nice to have portable,
+convenient and well-documented methods for sleeping and timing.
 
 Error messages, that I saw, were easy to read. VisualStudio was used to 
 edit because it came with the F# environment. 
@@ -803,7 +805,7 @@ mystery for me.
 
 I struggled to know the best way to make things immutable, especially
 collections. When I switched from using `HashSet` to
-`ImmutableHashSet` performace dropped by 30%. This made C# only
+`ImmutableHashSet` performance dropped by 30%. This made C# only
 slightly faster than Javascript. This can't be the best a functional
 C# can do: there's nothing in the way of the `ImmutableHashMap` that
 the algorithm does that could not be optimized away.
@@ -812,7 +814,7 @@ I have to say I really liked the LINQ stuff.  I don't really
 understand it, so I'm treating it like a way to do a list
 comprehension. It seems to be Functional, in that it works on
 immutable data structures and returns one. It was a reasonable
-substitue for a `map` function.
+substitute for a `map` function.
 
 The `var` keyword and type inference is nice. I like that I can leave
 the type off a collection:
@@ -826,7 +828,7 @@ or
 var things = new List<Thing>();
 ```
 
-Like Java, the lack of a typedef hurts: the method signatues that take
+Like Java, the lack of a typedef hurts: the method signatures that take
 template types get wordy and long:
 
 ```
@@ -867,7 +869,7 @@ wanted to give it a try.
 The implementation is a bit different. Instead of relying on lists for
 simple data structures, I used the `struct` constructor to define new
 types. In many ways, I think this improved the code.  The random
-appaearance of list decomposition methods like `(car c)` changed into
+appearance of list decomposition methods like `(car c)` changed into
 `(Coord-x c)` which provides a lot more context for the reader.
 
 Converting the code was harder than my experience using type
@@ -946,11 +948,41 @@ I'm a little confused by the use of seq, the use of collect, and the use
 of the sugar module.  They appear to be options to do similar things, but 
 I remain confused on which is the best to use.
 
-I did not see a mechanism to get the compiler to emit file names and offsets that
-emacs might parse to support finding those lines in the compilation buffer.  
-I didn't look too hard, so maybe it just works for other people. I edited the code 
-with nim-mode in emacs.  The collect (macro?) mechanism confused it somewhat.
+I did not see a mechanism to get the compiler to emit file names and
+offsets that emacs might parse to support finding those lines in the
+compilation buffer.  I didn't look too hard, so maybe it just works
+for other people. I edited the code with nim-mode in emacs.  The
+collect (macro?) mechanism confused it somewhat.
 
 Performance is in there with C, but the rich types and GC make it a lot 
 easier to program.
+
+### Janet
+
+Someday I hope to be working on tiny little computers for fun. My hope
+is that Janet will be a nice extension language for that
+environment. Like Clojure, it's lisp-like with a bit of deviation from
+traditional syntax to support hash-maps and arrays more directly like
+most other modern scripting languages.
+
+The error messages in Janet are very good, with the exception of
+
+```
+repl:1:> (+ 1, 2, 3)
+repl:1:5: compile error: cannot use unquote here
+```
+
+Once I learned to read "unquote" as "stop adding commas" every other
+message was great. Lines attributing the location of the error were
+spot-on; the messages were particularly clear.
+
+It's interesting to note that Janet comes with a simple little
+game-of-life example that demonstrates what a nice little language it
+is.
+
+Janet does not support sets as a type, which is a little sad.
+
+Janet will not set any speed records, but unlike most of the other
+languages, I was able to get a small performance improvement (40%) by
+using multiple threads.
 

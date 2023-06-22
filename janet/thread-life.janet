@@ -1,17 +1,17 @@
-# This implementation of the game-of-life is longer than the example
-# given in the janet examples. Like all many-lives implementations,
-# this version runs incrementally and can avoid re-processing sections
-# of the board that do not change.
-#
-# It also prints the board dynamically, which is more fun to watch.
-#
+# Like life.janet, but computes the next-generation using N threads
 
+(def N-THREADS 4)
+
+# a - table representing a set
+# b - iterable to add to the set
 (defn- union [a b]
   (let [c (table/clone a)]
     (each x b
       (put c x 1))
     c))
 
+# a = table representing a set
+# b- iterable of items to remove from the set
 (defn- difference [a b]
   (let (c (table/clone a))
     (each e b
@@ -37,7 +37,7 @@
    (fn [[xoffset yoffset]]
      [(+ x xoffset) (+ y yoffset)]) neighbor-offsets))
 
-# returns set (array) of neighbors of a set of coordinates
+# returns set (array) of all the neighbors of a set of coordinates
 (defn- consider [coords]
   (distinct (mapcat eight-neighbor-coords coords)))
 
@@ -45,10 +45,10 @@
 (defn- count-neighbors [alive coord]
   (count (fn [c] (in alive c)) (eight-neighbor-coords coord)))
 
+# from a sequence of changes, such as [(:birth (1 1)) (:die (0 0))]
+# extract out the coordinates by type (birth or die).
 (defn- changes [board key]
-  (let [changes (in board :changes)
-        match-key (fn [[how coord]] (= how key))]
-    (map second (filter match-key changes))))
+  (keep (fn [[how coord]] (if (= how key) coord nil)) (in board :changes)))
 
 (defn- make-board [alive changes]
   {:alive alive :changes changes})
@@ -62,12 +62,24 @@
 (defn- compute-change1 [alive coord]
   (let [count (count-neighbors alive coord)]
     (cond
-      (= count 3) (if (in alive coord) [] [[:birth coord]])
-      (= count 2) []
-      :else (if (in alive coord) [[:die coord]] []))))
+      (= count 3) (if (in alive coord) nil [:birth coord])
+      (= count 2) nil
+      :else (if (in alive coord) [:die coord] nil))))
 
 (defn- compute-changes [alive coords]
-  (mapcat (fn [c] (compute-change1 alive c)) coords))
+  (def chunks (partition (math/ceil (/ (length coords) N-THREADS)) coords))
+  (defn- process-chunk [chunk]
+    (keep (fn [c] (compute-change1 alive c)) chunk))
+  
+  (def collector-channel (ev/thread-chan (length chunks)))
+  (def chunk0 (array/pop chunks))
+  (each chunk chunks
+    (do
+      (ev/thread (fn [] (process-chunk chunk)) nil :n collector-channel)))
+  (def result (process-chunk chunk0))
+  (each chunk chunks
+    (array/concat result (second (ev/take collector-channel))))
+  result)
 
 # compute the next board from the current board
 (defn- next-generation [board]
