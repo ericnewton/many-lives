@@ -60,31 +60,34 @@ Here are some numbers from my laptop, a 2020 M1 Macbook. The number
 provided here is generations per second for a particular pattern to
 run for 1000 generations.
 
-Language  | Generations/sec
---------- | -------------
-C         | 23158
-C#        |  1049
-C++       |  9832
-Clojure   |  1438
-Elixir    |  1400
-F#        |   806
-Go        |  1923
-Haskell   |  1653
-Janet     |   773
-Janet(2)  |  1208
-Java      |  5128
-Javascript|   359
-Kotlin    |  4975
-Nim       |  5761
-OCaml     |  1858
-Python    |  3279
-Racket    |  1439
-Ruby      |   411
-Rust      |  6506
-Scala     |  9345
-Swift     |  1804
-Typed Racket| 1289
-Zig       | 11764
+Language     | Generations/sec
+------------ | -------------
+C            | 23158
+C#           |  1049
+C++          |  9832
+Clojure      |  1438
+Common Lisp  |  4089
+Elixir       |  1400
+F#           |   806
+Go           |  1923
+Haskell      |  1653
+Janet        |   773
+Janet(2)     |  1208
+Janet(3)     |  2316
+Java         |  5128
+Javascript   |   359
+Kotlin       |  4975
+Nim          |  5761
+OCaml        |  1858
+Python       |  3279
+Racket       |  1439
+Ruby         |   411
+Rust         |  6506
+Scala        |  9345
+Sql-postgres |  1265
+Swift        |  1804
+Typed Racket |  1289
+Zig          | 11764
 
 The reported value is the second fastest of 5 runs. In most cases this
 was also the fastest value as well.
@@ -151,7 +154,7 @@ declarations:
 person = new Person();
 ```
 
-`and ask the IDE just add the type to make a complete declaration. I
+and ask the IDE just add the type to make a complete declaration. I
 like strong typing, I just don't like redundancy.
 
 However, I found myself really liking Scala's strong typing. I found
@@ -192,7 +195,8 @@ is 1.5, and that was confusing IntelliJ. I spent more time cribbing
 together a standard bit of boilerplate `pom.xml` than I did writing
 the Java code.
 
-And I have 10 years of using maven!
+And I have 10 years experience using maven! I just never start from an
+empty project.
 
 lein and sbt have learned lessons and built a newbie friendly
 build/dependency management infrastructure.
@@ -233,7 +237,7 @@ debugging.
 Error messages for template errors have improved in the last 20 years,
 but I was still rewarded with a page of errors from a template
 expansion. I had failed to provide a hash function for an
-`unordered_set`.  None of the errors said anything about a hash. That
+`unordered_set`. None of the errors said anything about a hash. That
 said, the C++ error messages were consistently easier to understand
 than the Clojure messages.
 
@@ -245,7 +249,7 @@ languages, it was trivial.
 
 I wrote a Makefile to make sure I recorded the optimization, debugging
 and warning options I wanted. It's a simple file, though, and one I
-typed in without a 2nd thought even after long years between C++
+typed in without a second thought even after long years between C++
 projects.
 
 I finished writing most of my C++ version before I got to the final
@@ -273,10 +277,10 @@ too involved, I'd be happy to change the code.
 
 I did not have the time or inclination to put effort into writing
 parallel version, though I did spend time doing so for Clojure, Scala,
-Java and Haskell.
+Java, Haskell and Janet.
 
 After writing several other implementations, like the one in C and
-Jig, I've found performance to be sensitive to reallocation, so
+Zig, I've found performance to be sensitive to reallocation, so
 tweaking `reserve` sizes finally improved performance to the level
 you'd expect from C++.
 
@@ -319,7 +323,7 @@ type aliases and overall I think the result is readable.
 I once heard someone say, or maybe I just made it up, that "Object
 Oriented programming is higher-order functions for the
 [unsophisticated]." A different word might have have been used for
-unsophisticated. But, I'm one of them, I think.
+unsophisticated. But I'm one of them, I think.
 
 ### Javascript
 
@@ -336,6 +340,9 @@ Interestingly, Javascript is the only runtime that didn't support
 sleep to wait between generations when trying to view the
 output. Instead, async calls to a callback are made on a timer.
 
+[Well, I can't really do an animation of Life using Sql, either, but
+its not claiming to be a general purpose language.]
+
 ### Go
 
 Go seems to be actively hostile to a functional style, and the
@@ -345,9 +352,10 @@ There's no built-in `Set` and the advice online seems to encourage you
 to use a Map to implement your `Set`.  I grabbed one from a library.
 
 There's no map() implementation, so there are a lot of for loops in
-the code.  There's no templates or generic/parametric typing so
+the code. There's no templates or generic/parametric typing so
 anything that comes out of the Set has to be type asserted back to the
-underlying value type.
+underlying value type. [This is updated now? I need to go back and
+rewrite it using a more recent version of the language.]
 
 I think there might be some fun in trying to parallelize the code
 using language-specific features. May need to revisit this.
@@ -361,8 +369,9 @@ I thought that writing Life in another lisp derivative would be simple
 after writing it in Clojure. It was still surprisingly different.
 
 I was very much confused over how to express lists and avoid function
-evaluation. I was able to avoid this confusion in Clojure by using
-vectors for data structures.
+evaluation. That is, properly quoting lists-as-data vs lists-as-code.
+I was able to avoid this confusion in Clojure by using vectors for
+data structures.
 
 By the time I wrote the Racket implementation I had stopped caring
 about structuring components together. In my mind, each generation of
@@ -449,7 +458,7 @@ abundant. Emacs, in ruby-mode, was my editor.
 ### Elixir
 
 I have a learning disability: I continuously misspell "Elixir" as
-Elixir. Also, "Clojure" as "Closure" but I think that one is
+Elixer. Also, "Clojure" as "Closure" but I think that one is
 forgivable.
 
 Writing Life in Elixir was pretty fast and easy. Online documentation
@@ -560,9 +569,10 @@ laying around the Internet.
 Kotlin was surprisingly hard for me. I was able to type in the data 
 structures easily enough.  In fact, that part went very fast.
 
-I struggled getting InteliJ add the right dependency for the kotlinx 
-immutable collections library.  It added one, and the program would
-run within IntelliJ, but then I could not build from the command line.
+I struggled getting IntelliJ to add the right dependency for the
+kotlin immutable collections library. It added one, and the program
+would run within IntelliJ, but then I could not build from the command
+line.
 
 I was irked that I could not define a constant based on a complex
 expression. Sure, I could get into trouble executing arbitrary expressions 
@@ -587,10 +597,10 @@ pipeline constantly betrays the implementation details. Comparing the Java
 and Kotlin versions for basic structures shows how much extra is required
 for a simple data type in Java.
 
-InteliJ did suggest a simpler stream for counting neighbors, and I'm
+IntelliJ did suggest a simpler stream for counting neighbors, and I'm
 going to go back and see if there are other languages that consume
 a stream/iterator/etc with a count function that takes a predicate.
-That was a good suggestion, and a good mark for InteliJ.
+That was a good suggestion, and a good mark for IntelliJ.
 
 ### Zig
 
@@ -839,7 +849,7 @@ It could be worse: it could be `IImmutableSet<Coord>`.
 
 I found it strange that I couldn't put free-floating code and
 constants in the namespace, outside of a class. I wish I knew why. My
-mental model of what's going on in C# doesn't match my guesses, yet.
+mental model of what's going on in C# doesn't match reality, yet.
 
 I was hoping I could do things on the stack with value types, so I
 wouldn't have to create them constantly on the heap. I don't see how
@@ -892,11 +902,12 @@ save me from this mistake, and it would have been nice if it could.
 Error messages for type errors got a little hairy, but it wasn't
 overwhelming. They were easier for me to understand than Haskell/F#
 because the typing wasn't interlaced with types created via partial
-function application. That is, I ever had to see type expressions that
-were a result of using too few arguments to a method. It would just
-complain that I hadn't provided enough arguments.  Haskell, by
-contrast, would complain of a type mismatch because I was improperly
-using a new function that was the result of too few arguments.
+function application. That is, I never had to see type expressions
+that were a result of using too few arguments to a method. The
+compiler/interpreter would just complain that I hadn't provided enough
+arguments. Haskell, by contrast, would complain of a type mismatch
+because I was improperly using a new function that was the result of
+too few arguments.
 
 Typed Racket seems to give up at a lambda definition. It might give up
 on all functions, but I was careful to provide type annotations to the
@@ -904,8 +915,8 @@ functions defined at package scope. The type checker seemed to think
 that all my lambda functions took values of type `Any` even if it was
 perfectly knowable what it required from the functions used within. I
 don't dislike providing expected types to functions as a reasonable
-approach to type annotations. At the packet level, it makes for
-reasonable documentation.  It complicates the lambda definition,
+approach to type annotations. At the module level, it makes for
+reasonable documentation. It complicates the lambda definition,
 though.
 
 The level of typing defined for values is pretty impressive. I'm not
@@ -954,8 +965,7 @@ compilation buffer.  I didn't look too hard, so maybe it just works
 for other people. I edited the code with nim-mode in emacs.  The
 collect (macro?) mechanism confused it somewhat.
 
-Performance is in there with C, but the rich types and GC make it a lot 
-easier to program.
+Performance is good.
 
 ### Janet
 
@@ -965,7 +975,8 @@ environment. Like Clojure, it's lisp-like with a bit of deviation from
 traditional syntax to support hash-maps and arrays more directly like
 most other modern scripting languages.
 
-The error messages in Janet are very good, with the exception of
+The error messages in Janet are very good, though I was confused by
+this:
 
 ```
 repl:1:> (+ 1, 2, 3)
@@ -978,11 +989,57 @@ spot-on; the messages were particularly clear.
 
 It's interesting to note that Janet comes with a simple little
 game-of-life example that demonstrates what a nice little language it
-is.
+is. That version is faster than my algorithm.
+
+The example computes the neighbor count for all cells in each
+generation. The algorithm used in many-lives only computes the
+neighbor count around those cells that have changed. Perhaps that
+optimization is not worth the effort and the complexity.
 
 Janet does not support sets as a type, which is a little sad.
 
-Janet will not set any speed records, but unlike most of the other
-languages, I was able to get a small performance improvement (40%) by
-using multiple threads.
+Unlike most of the other languages, I was able to get a small
+performance improvement (40%) by using multiple threads. However, that
+speed is still half that of the simpler (single threaded) algorithm.
 
+Hmm... converting the janet example to python, I get a performance
+improvement there, too.
+
+Maybe it's time to re-write everything to use the simpler alogrithm
+from the Jane example.
+
+### Common Lisp
+
+The Common Lisp experience was a little jarring. The error messages
+being spit back with ALL UPPERCASE added another step between `(this
+is my code)` and understaing `BROKEN: (THIS IS MY CODE)`.
+
+I implemented the simpler version of life. I found the hash-table
+mechanism to use for sets and maps, but it is not particularly
+full-featured or easy to use. I would have liked to translate from
+collection (list) to set (hash-table) without having to build a
+hash-table and then add each item. I would have liked to use the same
+iteration mechanisms on lists as a hash-table. I would have liked to
+have iterated through a hashtable to produce a new collection type.
+
+For example, there isn't a function that builds a new collection by
+default. The function `map` will do this for lists, but `hashmap` does
+not. Or maybe there is a function, but I can't find it.
+
+But, at least there was a hash-table, a mechanism for building new
+types, and a means by which a hast-table collection of those types
+could be created. Not bad for 1990.
+
+Writing this little program in CL really made me appreciate the
+features and function set of Clojure (and Janet).
+
+Performance is surprisingly good.
+
+### SQL
+
+It's weird, but you can use a query to generate successive generations
+of a game-of-life board. I was able to visually validate the generated
+board at different generations with some tricky queries.
+
+The performance pretty shocking when you consider it keeps the entire
+history of all 1000 generations in a persistent table.
