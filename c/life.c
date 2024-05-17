@@ -11,21 +11,7 @@ static const bool SHOW_WORK = false;
 // stackoverflow: https://tinyurl.com/yxnypje8
 #define COUNT_OF(arr) (sizeof(arr)/sizeof(0[arr]))
 
-static int min(int a, int b) {
-  if (a < b) {
-    return a;
-  }
-  return b;
-}
-
-static int max(int a, int b) {
-  if (a > b) {
-    return a;
-  }
-  return b;
-}
-
-typedef struct {
+typedef struct Coord {
   int x;
   int y;
 } Coord;
@@ -38,27 +24,32 @@ static size_t coord_hash(const Coord * val) {
   return val->x * 97 + val->y;
 }
 
+typedef struct Entry {
+  Coord key;
+  int value;
+} Entry;
+
 typedef struct Link {
   struct Link * next;
-  Coord coord;
+  struct Entry entry;
 } Link;
 
 /*
- * A hash set implementation.  Uses a fixed sized array of
- * link-lists. All entries are stored in the linked list at the hash
- * value of the entry (modulus the array size). Each linked list is a
- * "bucket" for holding the entries at that hash location.  The list
- * is unordered.
+ * A hash map implementation. Uses a fixed sized array of link-lists.
+ * All entries are stored in the linked list at the hash value of the
+ * key (modulus the array size). Each linked list is a "bucket" for
+ * holding the key and value at that hash location. The list is
+ * unordered.
  */
-static const size_t BUCKET_COUNT = 1999;
+#define BUCKET_COUNT 1999
 typedef struct {
   size_t bucket_count;
-  struct Link* buckets[BUCKET_COUNT];
+  Link* buckets[BUCKET_COUNT];
   size_t count;
-} HashSet;
+} HashMap;
 
-static HashSet *hash_set_create() {
-  HashSet *result = (HashSet *)malloc(sizeof(HashSet));
+static HashMap *hash_map_create() {
+  HashMap *result = (HashMap *)malloc(sizeof(HashMap));
   if (!result) {
     perror(NULL);
     return NULL;
@@ -71,63 +62,53 @@ static HashSet *hash_set_create() {
   return result;
 }
 
-static void hash_set_free(HashSet *set) {
+static void hash_map_free(HashMap *map) {
   for (size_t i = 0; i < BUCKET_COUNT; i++) {
-    Link * p = set->buckets[i];
+    Link * p = map->buckets[i];
     while (p != NULL) {
       Link * doomed = p;
       p = p->next;
       free(doomed);
     }
   }
-  free(set);
+  free(map);
 }
 
-static int hash_set_add(HashSet * set, const Coord * val) {
-  size_t hash = coord_hash(val);
+static bool hash_map_add(HashMap * map, const Coord * key) {
+  size_t hash = coord_hash(key);
   size_t index = hash % BUCKET_COUNT;
-  struct Link * p = set->buckets[index];
-  while (p != NULL && !coord_equals(&p->coord, val)) {
+  Link * p = map->buckets[index];
+  while (p != NULL && !coord_equals(&p->entry.key, key)) {
     p = p->next;
   }
   if (p == NULL) {
-    p = (struct Link*)malloc(sizeof(struct Link));
+    p = (Link*)malloc(sizeof(Link));
     if (!p) {
       perror(NULL);
-      return -1;
+      return false;
     }
-    p->next = set->buckets[index];
-    p->coord = *val;
-    set->buckets[index] = p;
-    set->count++;
+    p->next = map->buckets[index];
+    p->entry.key = *key;
+    p->entry.value = 1;
+    map->buckets[index] = p;
+    map->count++;
     return true;
   }
-  return false;
+  p->entry.value++;
+  return true;
 }
 
-static bool hash_set_contains(const HashSet *set, const Coord *val) {
-  size_t hash = coord_hash(val);
+static int hash_map_get(const HashMap *map, const Coord *key) {
+  size_t hash = coord_hash(key);
   size_t index = hash % BUCKET_COUNT;
-  struct Link * p = set->buckets[index];
-  while (p != NULL && !coord_equals(&p->coord, val)) {
+  Link * p = map->buckets[index];
+  while (p != NULL && !coord_equals(&p->entry.key, key)) {
     p = p->next;
   }
-  return p != NULL;
-}
-
-static void hash_set_remove(HashSet *set, const Coord *val) {
-  size_t hash = coord_hash(val);
-  size_t index = hash % BUCKET_COUNT;
-  struct Link ** p = &(set->buckets[index]);
-  while (*p != NULL && !coord_equals(&(*p)->coord, val)) {
-    p = &(*p)->next;
+  if (p != NULL) {
+    return p->entry.value;
   }
-  if (*p != NULL) {
-    Link *tmp = *p;
-    *p = (*p)->next;
-    free(tmp);
-    set->count--;
-  }
+  return 0;
 }
 
 typedef struct {
@@ -137,7 +118,7 @@ typedef struct {
 static const HashIterator HASH_ITERATOR_START = { -1, NULL};
 static const HashIterator HASH_ITERATOR_END = { BUCKET_COUNT, NULL };
 
-static HashIterator hash_iterator_next(const HashSet *set, HashIterator iter) {
+static HashIterator hash_iterator_next(const HashMap *map, HashIterator iter) {
   if (iter.ptr) {
     if (iter.ptr->next) {
       HashIterator result = { iter.bucket, iter.ptr->next };
@@ -145,133 +126,34 @@ static HashIterator hash_iterator_next(const HashSet *set, HashIterator iter) {
     }
   }
   while (++iter.bucket < BUCKET_COUNT) {
-    if (set->buckets[iter.bucket] != NULL) {
-      HashIterator result = {iter.bucket, set->buckets[iter.bucket]};
+    if (map->buckets[iter.bucket] != NULL) {
+      HashIterator result = {iter.bucket, map->buckets[iter.bucket]};
       return result;
     }
   }
   return HASH_ITERATOR_END;
 }
 
-static HashIterator hash_iterator_start(const HashSet *set) {
-  return hash_iterator_next(set, HASH_ITERATOR_START);
+static HashIterator hash_iterator_start(const HashMap *map) {
+  return hash_iterator_next(map, HASH_ITERATOR_START);
 }
 
-static const Coord* hash_iterator_value(HashIterator iter) {
+static const Entry* hash_iterator_value(HashIterator iter) {
   if (iter.ptr != NULL) {
-    return &(iter.ptr->coord);
+    return &(iter.ptr->entry);
   }
   return NULL;
 }
 
-typedef enum {Live, Die} Destiny;
-typedef struct {
-  Coord coord;
-  Destiny destiny;
-} Change;
-
-typedef struct {
-  Change *changes;
-  size_t count;
-  size_t capacity;
-} ChangeList;
-
-static ChangeList* change_list_create(size_t capacity) {
-  ChangeList* result = (ChangeList*)malloc(sizeof(ChangeList));
-  if (!result) {
-    perror(NULL);
-    return NULL;
-  }
-  result->changes = (Change*)malloc(capacity*sizeof(ChangeList));
-  if (!result->changes) {
-    perror(NULL);
-    free(result);
-    return NULL;
-  }
-  result->count = 0;
-  result->capacity = capacity;
-  return result;
-}
-
-static int change_list_add(ChangeList* lst, Change *change) {
-  if (lst->count >= lst->capacity) {
-    fprintf(stderr, "change_list capacity too small to add a value\n");
-    return -1;
-  }
-  lst->changes[lst->count++] = *change;
-  return 0;
-}
-
-static void change_list_free(ChangeList * lst) {
-  free(lst->changes);
-  free(lst);
-}
-
-static int hash_set_count(const HashSet *live_set) {
-  return live_set->count;
-}
-
-static HashSet* apply_updates(const HashSet* live_set, const ChangeList* updates) {
-  HashSet* result = hash_set_create();
-  if (!result) {
-    return NULL;
-  }
-  for (HashIterator iter = hash_iterator_start(live_set);
-       hash_iterator_value(iter);
-       iter = hash_iterator_next(live_set, iter)) {
-    const Coord * c = hash_iterator_value(iter);
-    if (hash_set_add(result, c) < 0) {
-      hash_set_free(result);
-      return NULL;
-    }
-  }
-  for (int c = 0; c < updates->count; c++) {
-    Change change = updates->changes[c];
-    switch (change.destiny) {
-    case Live:
-      if (hash_set_add(result, &change.coord) < 0) {
-	hash_set_free(result);
-	return NULL;
-      }
-      break;
-    case Die:
-      hash_set_remove(result, &change.coord);
-      break;
-    }
-  }
-  return result;
-}
-
-typedef struct {
-  Coord lower_left;
-  Coord upper_right;
-} BoundingBox;
-
-static BoundingBox enlarge(BoundingBox bbox, const Coord *coord) {
-  BoundingBox result = {
-    { min(bbox.lower_left.x, coord->x),
-      min(bbox.lower_left.y, coord->y)},
-    { max(bbox.upper_right.x, coord->x),
-      max(bbox.upper_right.y, coord->y) }
-  };
-  return result;
-}
-
 const int HUMAN_WAIT_TIME_MS = 1000 / 30;
-static void print_board(HashSet* live_set) {
+static void print_board(HashMap* live_map) {
   /* clear screen, move cursor to upper-left corner */
   printf("%c[2J;%c[;H", 27, 27);
-  BoundingBox bbox = { {INT_MAX, INT_MAX}, {INT_MIN, INT_MIN} };
-  for (HashIterator iter = hash_iterator_start(live_set);
-       hash_iterator_value(iter);
-       iter = hash_iterator_next(live_set, iter)) {
-    bbox = enlarge(bbox, hash_iterator_value(iter));
-  }
-  for (int y = bbox.upper_right.y; y >= bbox.lower_left.y; y--) {
-    for (int x = bbox.lower_left.x; x <= bbox.upper_right.x; x++) {
+  for (int y = 20; y > -20; y--) {
+    for (int x = -40; x < 40; x++) {
       Coord coord = { x, y };
       char c = ' ';
-      if (hash_set_contains(live_set, &coord)) {
+      if (hash_map_get(live_map, &coord) > 0) {
 	c = '@';
       }
       printf("%c", c);
@@ -284,126 +166,93 @@ static void print_board(HashSet* live_set) {
   }
 }
 
-static HashSet* compute_neighbors(const ChangeList *lst) {
-  HashSet* result = hash_set_create();
-  for (int i = 0; i < lst->count; i++) {
-    Coord * c = &(lst->changes[i].coord);
-    for (int x = -1; x <= 1; x++) {
-      for (int y = -1; y <= 1; y++) {
-	if (x != 0 || y != 0) {
-	  Coord neighbor = {c->x + x, c->y + y};
-	  hash_set_add(result, &neighbor);
-	}
-      }
-    }
-  }
-  return result;
-}
-
-static int nieghbor_count(const HashSet *live_set, const Coord *coord) {
-  int result = 0;
-  for (int x = -1; x <= 1; x++) {
-    for (int y = -1; y <= 1; y++) {
-      if (x != 0 || y != 0) {
-	Coord neighbor = {coord->x + x, coord->y + y};
-	if (hash_set_contains(live_set, &neighbor)) {
-	  result++;
-	}
-      }
-    }
-  }
-  return result;
-}
-
-static ChangeList * compute_updates(const HashSet *live_set,
-				    const HashSet *neighbors) {
-  int count = hash_set_count(neighbors);
-  ChangeList *result = change_list_create(count);
-  if (!result) {
+static HashMap * count_neighbors(const HashMap* live_set) {
+  HashMap * counts = hash_map_create();
+  if (!counts) {
     return NULL;
   }
-  for (HashIterator iter = hash_iterator_start(neighbors);
-       hash_iterator_value(iter);
-       iter = hash_iterator_next(neighbors, iter)) {
-    const Coord * c = hash_iterator_value(iter);
-    int n = nieghbor_count(live_set, c);
-    switch (n) {
-    case 2:
-      break;
-    case 3:
-      if (!hash_set_contains(live_set, c)) {
-	Change change = { *c, Live };
-	if (change_list_add(result, &change) < 0) {
-	  change_list_free(result);
-	  return NULL;
-	}
-      }
-      break;
-    default:
-      if (hash_set_contains(live_set, c)) {
-	Change change = { *c, Die };
-	if (change_list_add(result, &change) < 0) {
-	  change_list_free(result);
-	  return NULL;
-	}
-      }
+  for (HashIterator iter = hash_iterator_start(live_set);
+       ;
+       iter = hash_iterator_next(live_set, iter)) {
+    const Entry * entry = hash_iterator_value(iter);
+    if (!entry) {
       break;
     }
+    for (int offset_x = -1; offset_x <= 1; offset_x++) {
+      for (int offset_y = -1; offset_y <= 1; offset_y++) {
+	if (offset_x == 0 && offset_y == 0) {
+	  continue;
+	}
+	Coord neighbor = { entry->key.x + offset_x, entry->key.y + offset_y };
+	bool success = hash_map_add(counts, &neighbor);
+	if (!success) {
+	  hash_map_free(counts);
+	  return NULL;
+	}
+      }
+    }
   }
+  return counts;
+}
+
+
+static HashMap* next_generation(const HashMap* live_set) {
+  HashMap * counts = count_neighbors(live_set);
+  if (!counts) {
+    return NULL;
+  }
+  HashMap * result = hash_map_create();
+  if (!result) {
+    hash_map_free(counts);
+    return NULL;
+  }
+  for (HashIterator iter = hash_iterator_start(counts);
+       ;
+       iter = hash_iterator_next(counts, iter)) {
+    const Entry * entry = hash_iterator_value(iter);
+    if (!entry) {
+      break;
+    }
+    if (entry->value == 3 || (entry->value == 2 && hash_map_get(live_set, &entry->key))) {
+      if (!hash_map_add(result, &entry->key)) {
+	hash_map_free(counts);
+	hash_map_free(result);
+	return NULL;
+      }
+    }
+  }
+  hash_map_free(counts);
   return result;
 }
+
 
 static int run() {
   Coord r_pentomino[] = {
     {0, 0}, {0, 1}, {1, 1}, {-1, 0}, {0, -1}
   };
-  ChangeList* updates = change_list_create(COUNT_OF(r_pentomino));
-  if (!updates) {
+  HashMap * live_set = hash_map_create();
+  if (!live_set) {
     return -1;
   }
   for (size_t i = 0; i < COUNT_OF(r_pentomino); i++) {
-    Change change = { r_pentomino[i], Live };
-    if (change_list_add(updates, &change) < 0) {
-      change_list_free(updates);
+    if (!hash_map_add(live_set, &r_pentomino[i])) {
+      hash_map_free(live_set);
       return -1;
     }
-  }
-  HashSet * live_set = hash_set_create();
-  if (!live_set) {
-    change_list_free(updates);
-    return -1;
   }
   for (int generation = 0; generation < GENERATIONS; generation++) {
-    HashSet* updated = apply_updates(live_set, updates);
-    if (!updated) {
-      change_list_free(updates);
-      hash_set_free(live_set);
-      return -1;
-    }
     if (SHOW_WORK) {
-      print_board(updated);
+      print_board(live_set);
     }
-    HashSet* neighbors = compute_neighbors(updates);
-    if (!neighbors) {
-      change_list_free(updates);
-      hash_set_free(live_set);
-      hash_set_free(updated);
+    HashMap* new_live_set = next_generation(live_set);
+    if (!new_live_set) {
+      hash_map_free(live_set);
       return -1;
     }
-    change_list_free(updates);
-    updates = compute_updates(updated, neighbors);
-    if (!updates) {
-      hash_set_free(live_set);
-      hash_set_free(updated);
-      hash_set_free(neighbors);
-      return -1;
-    }
-    hash_set_free(neighbors);
-    hash_set_free(live_set);
-    live_set = updated;
+    hash_map_free(live_set);
+    live_set = new_live_set;
   }
-  hash_set_free(live_set);
-  change_list_free(updates);
+  hash_map_free(live_set);
   return 0;
 }
 
