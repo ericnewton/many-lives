@@ -62,7 +62,7 @@ run for 1000 generations.
 
 Language     | Generations/sec
 ------------ | -------------
-C            | 23158
+C            | 20493
 C#           |  1049
 C++          |  9832
 Clojure      |  1438
@@ -80,10 +80,13 @@ Kotlin       |  4975
 Nim          |  5761
 OCaml        |  1858
 Python       |  3279
+Python (jython) |  1287
 Racket       |  1439
 Ruby         |   411
 Rust         |  6506
 Scala        |  9345
+Scheme (guile)|  313
+Scheme (chicken)| 598
 Sql-postgres |  1265
 Swift        |  1804
 Typed Racket |  1289
@@ -1043,3 +1046,78 @@ board at different generations with some tricky queries.
 
 The performance pretty shocking when you consider it keeps the entire
 history of all 1000 generations in a persistent table.
+
+### Scheme
+
+I started off a little enamored with Scheme as a simple, but powerful
+language. I'm quite sure it is still both of those things, but I don't
+know how much I'd like to work in it.
+
+First, portability: trying to execute the same code under guile and
+CHICKEN is not trivial. I am prepared to see differences between
+implementations for operating-system calls like `usleep` (like, where
+is it CHICKEN scheme?), but I was surprised when the trivial `1+`
+function seemed to be used in guile examples and did not exist in
+CHICKEN. For sure this is easy enough to define, but why doesn't it
+exist?
+
+I have no idea what's going on with import and/or use-modules. Where
+is this described and standardized? I just copied and pasted examples
+until I found a combo that updated my local namespace and my code
+could find the utilities I needed.
+
+For example, why:
+
+```
+; chicken scheme
+(import srfi-69)
+```
+vs
+```
+; guile
+(import (srfi srfi-69))
+```
+
+Why isn't format printing standardized? I mean, it does kinda work but
+the import is different:
+
+```
+; guile
+(use-modules (ice-9 format))
+```
+vs
+```
+; chicken
+(import (chicken format))
+```
+
+And maybe those two `format` function aren't really compatible, but it
+seems like something scheme people would have standardized. What is
+ice-9?
+
+If I had two implementations of python (for example) and I wanted to
+write something as simple as the Game of Life in those two different
+versions, it would be trivial to make them work against the same
+source file. In fact, I modified the python version to run in python2
+and it runs under jython just fine.
+
+Performance is not great. Maybe I'm doing something horrible in my
+implementation. Racket and common lisp are more than 3 and 6 times
+faster, respectively.
+
+The functions over collections (map, hash-table-fold) were nice.
+However, I didn't find anything nice to generate the nighbor offsets.
+For example, python's list comprehension:
+
+```
+rng = range(-1, 1 + 1)
+offsets = [(x, y) for x in rng for y in rng if x or y]
+```
+
+
+I managed to come up with something with map-append and filter, but in
+the end decided that a hard-coded list was easier to understand. It
+may be easier to undertand than the list comprehension above, too.
+
+Using chicken's `csc` to compile down to a small-ish executable was
+pretty nice.
