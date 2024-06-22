@@ -1,14 +1,10 @@
-(define scheme 'chicken)
-
+; moved imports into the command-line invocation
 ;(import (srfi srfi-1))
 ;(import (srfi srfi-69))
-;(use-modules (ice-9 format))
 
-;; (import (chicken time))
-;; (import (chicken format))
-;; (import (chicken process))
-;; (import srfi-69)
 ;; (import srfi-1)
+;; (import srfi-18)
+;; (import srfi-69)
 
 ; Constant list of coordinates (x y) relative to a cell, (-1 -1) to (1 1)
 (define window '((-1 -1) (-1  0) (-1  1)
@@ -68,11 +64,7 @@
 	   ))
 
 (define (pause)
-  (if (equal? scheme 'guile)
-      (usleep (floor (/ 1000000 30)))) ; guile ... sleep for 1/30th of a second
-  (if (equal? scheme 'chicken)
-      (process-wait (process-run "sleep 0.03"))) ; chicken ... oof
-  )
+  (thread-sleep! (/ 1 30.)))
 
 (define (draw state x1 y1 x2 y2)
   ; Draw cells in the game of life from (x1, y1) to (x2, y2)
@@ -89,17 +81,10 @@
     (pause)
     ))
 
-; time units since start
-(define (now)
-  (cond ((equal? scheme 'guile)   (get-internal-real-time))
-	((equal? scheme 'chicken) (current-process-milliseconds))
-	(else 0)))
 
 ; time, in seconds, since then
 (define (diff-now then)
-  (cond ((equal? scheme 'guile) (exact->inexact (/ (- (now) then) internal-time-units-per-second)))
-	((equal? scheme 'chicken) (/ (- (now) then) 1000.))
-	(else 0)))
+  (exact->inexact (- (time->seconds (current-time)) (time->seconds then))))
   
 
 (define (run n)
@@ -107,7 +92,7 @@
 	(cols 80)
 	(lines 25)
 	(generations 1000)
-	(start (now)))
+	(start (current-time)))
     (do ((i 0 (+ i 1))
 	 (state r-pentomino (tick state)))
 	((> i generations) #t)
