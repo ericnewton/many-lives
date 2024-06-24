@@ -3,6 +3,10 @@ fail() {
    echo $* 1>&2
    exit 1
 }
+which gxi > /dev/null || fail you must install gerbil scheme
+echo 'gerbil scheme'
+gxi life-gerbil.scm
+
 which chicken-install > /dev/null || fail you must install chicken
 echo 'chicken scheme'
 chicken-install -verbose srfi-69

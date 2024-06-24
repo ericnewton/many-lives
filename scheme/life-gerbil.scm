@@ -1,7 +1,24 @@
 ; moved imports into the command-line invocation
 
+;; definitions for gerbil scheme to match srfi functions
+(import :std/srfi/1)
+(import :std/misc/threads)
+(import :std/misc/hash)
+(import :std/format)
+
+(define (hash-table-update! table key fn thunk)
+  (hash-update! table key fn (thunk)))
+(define hash-table-set! hash-put!)
+(define (hash-table-fold table fn iv)
+  (hash-fold fn iv table))
+(define hash-table-exists? hash-key?)
 (define (fmt . args)
-  (display (apply format #f args)))
+  (display (apply format args)))
+
+;; simple formatting for guile and chicken
+;;
+;; (define (fmt . args)
+;;   (display (apply format #f args)))
 
 ; Constant list of coordinates (x y) relative to a cell, (-1 -1) to (1 1)
 (define window '((-1 -1) (-1  0) (-1  1)

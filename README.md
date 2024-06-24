@@ -79,7 +79,7 @@ Javascript   |   359
 Kotlin       |  4975
 Nim          |  5761
 OCaml        |  1858
-Python       |  3279
+Python (c-python 3.12) |  3279
 Python (jython) |  1287
 Racket       |  1439
 Ruby         |   411
@@ -87,6 +87,7 @@ Rust         |  6506
 Scala        |  9345
 Scheme (guile)|  313
 Scheme (chicken)| 598
+Scheme (gerbil)| 504
 Sql-postgres |  1265
 Swift        |  1804
 Typed Racket |  1289
@@ -1009,7 +1010,7 @@ Hmm... converting the janet example to python, I get a performance
 improvement there, too.
 
 Maybe it's time to re-write everything to use the simpler alogrithm
-from the Jane example.
+from the Janet example.
 
 ### Common Lisp
 
@@ -1075,30 +1076,59 @@ vs
 (import (srfi srfi-69))
 ```
 
+[Here's a web page](https://rain-1.github.io/scheme-srfi-1.html) that
+shows the many ways of importing srfi1 for various schemes.
+
 If I had two implementations of python (for example) and I wanted to
 write something as simple as the Game of Life in those two different
 versions, it would be trivial to make them work against the same
 source file. In fact, I modified the python version to run in python2
-and it runs under jython just fine. In the end, I handled these
-differences using command-line options to provide the `srfi` modules
-that were needed.
+and it runs under C python3, python2 and jython just fine.
 
 Performance is not great. Maybe I'm doing something horrible in my
 implementation. Racket and common lisp are more than 3 and 6 times
-faster, respectively.
+faster, respectively. It's slower than SQL running under postgres.
 
 The functions over collections (map, hash-table-fold) were nice.
 However, I didn't find anything simple to generate the neighbor
 offsets. For example, python's list comprehension:
 
 ```
-rng = range(-1, 1 + 1)
+rng = (-1, 0, 1)
 offsets = [(x, y) for x in rng for y in rng if x or y]
 ```
 
-I managed to come up with something with map-append and filter, but in
-the end decided that a hard-coded list was easier to understand. It
-may be easier to undertand than the list comprehension above, too.
+I managed to come up with something using map-append and filter, but
+in the end decided that a hard-coded list was easier to understand. It
+may be easier to understand than the list comprehension above, too.
 
 Using chicken's `csc` to compile down to a small-ish executable was
 pretty sweet.
+
+Update:
+
+I just tried to reuse the same code to run under gerbil scheme. The
+website claims that gerbil scheme is modern and supports "the most
+common" SRFIs. Yet SRFI-69 (basic hash tables) was finalized in 2005,
+which is 19 years ago, and I don't see it listed as supported.
+Certainly one *can* adapt the hash functions provided, and I have, but
+it looks like even basic data structures have not been uniformly
+standardized across implementations. That's going to make it tricky to
+build much without committing deeply to a single implementation.
+
+I'm not even sure if SRFI compatibility is worth searching for, or if
+I should be looking for R7RS level of standardization.
+
+I'm still lost when it comes to modules. Fortunately the Game of Life
+is so small I don't have to know the extent to which the namespace
+created is defined, exported and shared.
+
+Why guile, chicken and gerbil? I've always been interested in guile
+since it was announced as the "GNU extension language" back in the
+90s. After having so many issues with imports I thought I'd try other
+implementations and these other two had been mentioned in online
+comments I'd read recently.
+
+I heard chez scheme is fast, but I could not work out how to get srfi
+functions available for it.
+
