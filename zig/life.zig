@@ -34,7 +34,7 @@ const r_pentomino = [_]Coord{ c(0, 0), c(0, 1), c(1, 1), c(-1, 0), c(0, -1) };
 
 fn applyChanges(alive: LiveSet, changes: ChangeSet) !LiveSet {
     var result = LiveSet.init(allocator);
-    try result.ensureCapacity(alive.count() + changes.count());
+    try result.ensureTotalCapacity(alive.count() + changes.count());
     var iter = alive.keyIterator();
     while (iter.next()) |next| {
         try result.put(next.*, {});
@@ -110,7 +110,7 @@ const neighborOffsets = [_]Offset{
 
 fn computeNeighbors(changes: ChangeSet) !LiveSet {
     var result = LiveSet.init(allocator);
-    try result.ensureCapacity(changes.count() * 8);
+    try result.ensureTotalCapacity(changes.count() * 8);
     var iter = changes.keyIterator();
     while (iter.next()) |next| {
         for (neighborOffsets) |xy| {
@@ -133,7 +133,7 @@ fn neighborCount(alive: LiveSet, next: Coord) i32 {
 fn computeChanges(alive: LiveSet, changes: ChangeSet) !ChangeSet {
     var result = ChangeSet.init(allocator);
     var neighbors = try computeNeighbors(changes);
-    try result.ensureCapacity(neighbors.count() / 2);
+    try result.ensureTotalCapacity(neighbors.count() / 2);
     defer neighbors.deinit();
     var iter = neighbors.keyIterator();
     while (iter.next()) |next| {
@@ -156,26 +156,26 @@ fn run() !void {
     defer alive.deinit();
     var changes = ChangeSet.init(allocator);
     defer changes.deinit();
-    for (r_pentomino) |*coord, i| {
+    for (&r_pentomino) |*coord| {
         const change = Change{ .coord = coord.*, .destiny = Destiny.Live };
         try changes.put(change, {});
     }
-    var start = std.time.milliTimestamp();
+    const start = std.time.milliTimestamp();
     var i = @as(i32, 0);
     while (i < GENERATIONS) {
-        var updated = applyChanges(alive, changes);
+        const updated = applyChanges(alive, changes);
         alive.deinit();
         alive = try updated;
         if (SHOW_WORK) {
             try printGeneration(alive);
         }
-        var nextGen = computeChanges(alive, changes);
+        const nextGen = computeChanges(alive, changes);
         changes.deinit();
         changes = try nextGen;
         i = i + 1;
     }
     const diff = std.time.milliTimestamp() - start;
-    try stdout.print("{d} generations per second\n", .{GENERATIONS / (@intToFloat(f32, diff) / 1000.0)});
+    try stdout.print("{d} generations per second\n", .{GENERATIONS / (@as(f32, @floatFromInt(diff)) / 1000.0)});
 }
 
 pub fn main() !void {

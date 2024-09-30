@@ -86,6 +86,7 @@ Ruby         |   411
 Rust         |  6506
 Scala        |  9345
 Scheme (guile)|  313
+Scheme (guile-3.0)|  936
 Scheme (chicken)| 598
 Scheme (gerbil)| 504
 Sql-postgres |  1265
