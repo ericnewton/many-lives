@@ -1,4 +1,4 @@
-package newton.eric.c;
+package manylives;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -158,9 +158,8 @@ public class App {
     // get the set of changes to apply to the next generation for a set of points
     private static Collection<Change> computeChanges(ImmutableSet<Coord> alive,
 						     ImmutableSet<Coord> affected) {
-        return affected.stream()
-                .parallel()
-                .map(pos -> change(alive, pos))
+        return affected.parallelStream()
+	            .map(pos -> change(alive, pos))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }

@@ -17,7 +17,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>newton.eric.c.App</mainClass>
+              <mainClass>manylives.App</mainClass>
             </manifest>
           </archive>
           <descriptorRefs>
