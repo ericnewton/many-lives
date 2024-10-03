@@ -134,7 +134,7 @@
       (do
         (set board (next-generation board))
 	(show board)))
-    (printf "%d generations / sec" (/ generations (- (os/clock) start-time)))))
+    (printf "%.2f generations / sec" (/ generations (- (os/clock) start-time)))))
 
 (defn- main [& args]
   (let [arg (second (tuple ;args "run"))

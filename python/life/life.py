@@ -5,11 +5,15 @@ from collections import namedtuple
 
 Board = namedtuple('Board', ['alive', 'updates'])
 
+# jython/python2 doesn't have a print function
+def p(*args, **kw):
+    print(args[0])
+
 def clearScreen():
     # clear screen
-    print("\033[2J", end='')
+    p("\033[2J", end='')
     # move to top-left corner
-    print("\033[;H", end='')
+    p("\033[;H", end='')
 
 def boundBox(board):
     lst = board.alive
@@ -27,8 +31,8 @@ def printBoard(board):
     maxx, maxy = max
     for y in range(maxy, miny - 1, -1):
         for x in range(minx, maxx + 1):
-            print("@" if (x, y) in board.alive else " ", end='')
-        print()
+            p("@" if (x, y) in board.alive else " ", end='')
+        p()
     time.sleep(human_speed)
 
 # apply the kill/resurection set to the live set
@@ -93,7 +97,7 @@ def main(pattern):
             if showWork:
                 printBoard(board)
         diff = time.time() - now;
-        print(f"{generations / diff:.2f} generations / sec")
+        p("%.2f generations / sec" % (generations / diff, ))
 
 if __name__ == '__main__':
     with open(sys.argv[1]) as fp:
