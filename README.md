@@ -61,7 +61,7 @@ provided here is generations per second for a particular pattern to
 run for 1000 generations.
 
 Language     | Generations/sec (m1 mac) | AMD Ryzen 7 5700U
------------- | ------------- |
+------------ | ------------- | ------------ 
 C            | 20493  | 24194
 C#           |  1049  |  1590
 C++          |  9832  |  9226
