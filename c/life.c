@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <limits.h>
 #include <sys/time.h>
+#include <assert.h>
 
 static const int GENERATIONS = 1000;
 static const bool SHOW_WORK = false;
@@ -29,22 +30,17 @@ typedef struct Entry {
   int value;
 } Entry;
 
-typedef struct Link {
-  struct Link * next;
-  struct Entry entry;
-} Link;
+static bool isempty(const Entry *val) {
+  return val->value == -1;
+}
 
 /*
- * A hash map implementation. Uses a fixed sized array of link-lists.
- * All entries are stored in the linked list at the hash value of the
- * key (modulus the array size). Each linked list is a "bucket" for
- * holding the key and value at that hash location. The list is
- * unordered.
+ * A hash map implementation. 
  */
-#define BUCKET_COUNT 1999
+#define CAPACITY 1999
 typedef struct {
-  size_t bucket_count;
-  Link* buckets[BUCKET_COUNT];
+  size_t capacity;
+  Entry entries[CAPACITY];
   size_t count;
 } HashMap;
 
@@ -54,95 +50,68 @@ static HashMap *hash_map_create() {
     perror(NULL);
     return NULL;
   }
-  result->bucket_count = BUCKET_COUNT;
+  result->capacity = CAPACITY;
   result->count = 0;
-  for (size_t i = 0; i < result->bucket_count; i++) {
-    result->buckets[i] = NULL;
+  for (size_t i = 0; i < result->capacity; i++) {
+    result->entries[i].value = -1;
   }
   return result;
 }
 
 static void hash_map_free(HashMap *map) {
-  for (size_t i = 0; i < BUCKET_COUNT; i++) {
-    Link * p = map->buckets[i];
-    while (p != NULL) {
-      Link * doomed = p;
-      p = p->next;
-      free(doomed);
-    }
-  }
   free(map);
 }
 
-static bool hash_map_add(HashMap * map, const Coord * key) {
+static int find(const HashMap *map, const Coord * key) {
   size_t hash = coord_hash(key);
-  size_t index = hash % BUCKET_COUNT;
-  Link * p = map->buckets[index];
-  while (p != NULL && !coord_equals(&p->entry.key, key)) {
-    p = p->next;
-  }
-  if (p == NULL) {
-    p = (Link*)malloc(sizeof(Link));
-    if (!p) {
-      perror(NULL);
-      return false;
+  size_t index = hash % map->capacity;
+  for (int i = index; i < map->capacity; i++) {
+    const Entry * p = map->entries + i;
+    if (isempty(p)) {
+      return i;
     }
-    p->next = map->buckets[index];
-    p->entry.key = *key;
-    p->entry.value = 1;
-    map->buckets[index] = p;
-    map->count++;
-    return true;
+    if (coord_equals(&p->key, key)) {
+      return i;
+    }
   }
-  p->entry.value++;
+  for (int i = 0; i < index; i++) {
+    const Entry * p = map->entries + i;
+    if (isempty(p)) {
+      return i;
+    }
+    if (coord_equals(&p->key, key)) {
+      return i;
+    }
+  }
+  return -1;
+}
+  
+
+static bool hash_map_add(HashMap * map, const Coord * key) {
+  int index = find(map, key);
+  if (index < 0) {
+    return false;
+  }
+  Entry * entry = map->entries + index;
+  if (isempty(entry)) {
+    entry->key.x = key->x;
+    entry->key.y = key->y;
+    entry->value = 0;
+  }
+  entry->value++;
   return true;
 }
 
 static int hash_map_get(const HashMap *map, const Coord *key) {
-  size_t hash = coord_hash(key);
-  size_t index = hash % BUCKET_COUNT;
-  Link * p = map->buckets[index];
-  while (p != NULL && !coord_equals(&p->entry.key, key)) {
-    p = p->next;
+  int index = find(map, key);
+  if (index < 0) {
+    return 0;
   }
-  if (p != NULL) {
-    return p->entry.value;
+  const Entry * entry = map->entries + index;
+  if (isempty(entry)) {
+    return 0;
   }
-  return 0;
-}
-
-typedef struct {
-  int bucket;
-  Link *ptr;
-} HashIterator;
-static const HashIterator HASH_ITERATOR_START = { -1, NULL};
-static const HashIterator HASH_ITERATOR_END = { BUCKET_COUNT, NULL };
-
-static HashIterator hash_iterator_next(const HashMap *map, HashIterator iter) {
-  if (iter.ptr) {
-    if (iter.ptr->next) {
-      HashIterator result = { iter.bucket, iter.ptr->next };
-      return result;
-    }
-  }
-  while (++iter.bucket < BUCKET_COUNT) {
-    if (map->buckets[iter.bucket] != NULL) {
-      HashIterator result = {iter.bucket, map->buckets[iter.bucket]};
-      return result;
-    }
-  }
-  return HASH_ITERATOR_END;
-}
-
-static HashIterator hash_iterator_start(const HashMap *map) {
-  return hash_iterator_next(map, HASH_ITERATOR_START);
-}
-
-static const Entry* hash_iterator_value(HashIterator iter) {
-  if (iter.ptr != NULL) {
-    return &(iter.ptr->entry);
-  }
-  return NULL;
+  return entry->value;
 }
 
 const int HUMAN_WAIT_TIME_MS = 1000 / 30;
@@ -171,12 +140,10 @@ static HashMap * count_neighbors(const HashMap* live_set) {
   if (!counts) {
     return NULL;
   }
-  for (HashIterator iter = hash_iterator_start(live_set);
-       ;
-       iter = hash_iterator_next(live_set, iter)) {
-    const Entry * entry = hash_iterator_value(iter);
-    if (!entry) {
-      break;
+  for (int i = 0; i < live_set->capacity; i++) {
+    const Entry * entry = live_set->entries + i;
+    if (isempty(entry)) {
+      continue;
     }
     for (int offset_x = -1; offset_x <= 1; offset_x++) {
       for (int offset_y = -1; offset_y <= 1; offset_y++) {
@@ -206,12 +173,10 @@ static HashMap* next_generation(const HashMap* live_set) {
     hash_map_free(counts);
     return NULL;
   }
-  for (HashIterator iter = hash_iterator_start(counts);
-       ;
-       iter = hash_iterator_next(counts, iter)) {
-    const Entry * entry = hash_iterator_value(iter);
-    if (!entry) {
-      break;
+  for (int i = 0; i < counts->capacity; i++) {
+    const Entry * entry = counts->entries + i;
+    if (isempty(entry)) {
+      continue;
     }
     if (entry->value == 3 || (entry->value == 2 && hash_map_get(live_set, &entry->key))) {
       if (!hash_map_add(result, &entry->key)) {
