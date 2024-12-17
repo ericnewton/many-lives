@@ -5,7 +5,7 @@ ifdef CLANG
   WARNFLAGS=-Wall -Wno-c++11-extensions
   LIBS=
 else
-  CXX=gcc-12
+  CXX=gcc
   WARNFLAGS=-Wall
   LIBS=-lstdc++
 endif

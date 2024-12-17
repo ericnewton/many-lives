@@ -11,11 +11,17 @@ Position = namedtuple('Position', ['x', 'y'])
 Change = namedtuple('Change', ['how', 'position'])
 Board = namedtuple('Board', ['alive', 'updates'])
 
+# jython's `print` is not a function, so this function just allows us
+# to used this file with python3 and jython (we don't really need to print
+# anything)
+def p(*args, **kw):
+    print(args)
+
 def clearScreen():
     # clear screen
-    print("\033[2J", end='')
+    p("\033[2J", end='')
     # move to top-left corner
-    print("\033[;H", end='')
+    p("\033[;H", end='')
 
 def boundBox(board):
     lst = board.alive
@@ -29,8 +35,8 @@ def printBoard(board):
     min, max = boundBox(board)
     for y in range(max.y, min.y - 1, -1):
         for x in range(min.x, max.x + 1):
-            print("@" if Position(x, y) in board.alive else " ", end='')
-        print()
+            p("@" if Position(x, y) in board.alive else " ", end='')
+        p()
 
 # apply the kill/resurection set to the live set
 def applyUpdates(alive, updates):
@@ -97,7 +103,7 @@ def main(pattern):
             printBoard(board)
             time.sleep(human_speed)
         diff = time.time() - now
-        print(f"{generations / diff:.2f} generations / sec")
+        print("%2f generations / sec" % (generations/diff,))
 
 if __name__ == '__main__':
     with open(sys.argv[1]) as fp:

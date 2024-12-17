@@ -60,38 +60,39 @@ Here are some numbers from my laptop, a 2020 M1 Macbook. The number
 provided here is generations per second for a particular pattern to
 run for 1000 generations.
 
-Language     | Generations/sec
------------- | -------------
-C            | 20493
-C#           |  1049
-C++          |  9832
-Clojure      |  1438
-Common Lisp  |  4089
-Elixir       |  1400
-F#           |   806
-Go           |  1923
-Haskell      |  1653
-Janet        |   773
-Janet(2)     |  1208
-Janet(3)     |  2316
-Java         |  5128
-Javascript   |   359
-Kotlin       |  4975
-Nim          |  5761
-OCaml        |  1858
-Python (c-python 3.12) |  3279
-Python (jython) |  1287
-Racket       |  1439
-Ruby         |   411
-Rust         |  6506
-Scala        |  9345
-Scheme (guile)|  313
-Scheme (chicken)| 598
-Scheme (gerbil)| 504
-Sql-postgres |  1265
-Swift        |  1804
-Typed Racket |  1289
-Zig          | 11764
+Language     | Generations/sec (m1 mac) | AMD Ryzen 7 5700U
+------------ | ------------- | ------------ 
+C            | 20493  | 24194
+C#           |  1049  |  1590
+C++          |  9832  |  9226
+Clojure      |  1438  |   582
+Common Lisp  |  4089  |  5385
+Elixir       |  1400  |  1095
+F#           |   806  |   628
+Go           |  1923  |  1805
+Haskell      |  1653  |  1416
+Janet        |   773  |   462
+Janet(2)     |  1208  |
+Janet(3)     |  2316  |
+Java         |  5128  |  5000
+Javascript   |   359  |   160
+Kotlin       |  4975  |  5434
+Nim          |  5761  |  6585
+OCaml        |  1858  |  1328
+Python (c-python 3.12) |  3279 | 1566
+Python (jython) |  1287 | 558
+Racket       |  1439 |  922
+Ruby         |   411 |  231
+Rust         |  6506 | 9886
+Scala        |  9345 | 7518
+Scheme (guile-2.2)|  313 | 1037
+Scheme (guile-3.0)|  |  809
+Scheme (chicken)| 598 |  902
+Scheme (gerbil)| 504 |   566
+Sql-postgres |  1265 |   200
+Swift        |  1804 |  2480
+Typed Racket |  1289 |   874
+Zig          | 11764 | 12196
 
 The reported value is the second fastest of 5 runs. In most cases this
 was also the fastest value as well.
