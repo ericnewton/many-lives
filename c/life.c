@@ -114,7 +114,7 @@ static int hash_map_get(const HashMap *map, const Coord *key) {
   return entry->value;
 }
 
-const int HUMAN_WAIT_TIME_MS = 1000 / 30;
+static const int HUMAN_WAIT_TIME_MS = 1000 / 30;
 static void print_board(HashMap* live_map) {
   /* clear screen, move cursor to upper-left corner */
   printf("%c[2J;%c[;H", 27, 27);
