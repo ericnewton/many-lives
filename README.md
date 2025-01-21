@@ -62,9 +62,10 @@ run for 1000 generations.
 
 Language     | Generations/sec (m1 mac) | AMD Ryzen 7 5700U
 ------------ | ------------- | ------------ 
-C            | 20493  | 24194
+C            | 20493  | 56679
 C#           |  1049  |  1590
 C++          |  9832  |  9226
+C++ (2)      |  xxxx  | 18343
 Clojure      |  1438  |   582
 Common Lisp  |  4089  |  5385
 Elixir       |  1400  |  1095
@@ -84,6 +85,7 @@ Python (jython) |  1287 | 558
 Racket       |  1439 |  922
 Ruby         |   411 |  231
 Rust         |  6506 | 9886
+Rust (rewrite) |  ???? | 36732
 Scala        |  9345 | 7518
 Scheme (guile-2.2)|  313 | 1037
 Scheme (guile-3.0)|  |  809

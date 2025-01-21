@@ -1,4 +1,4 @@
 #! /bin/bash
-cd life
+cd life2
 cargo build --release
 cargo run --release
