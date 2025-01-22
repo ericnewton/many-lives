@@ -1,0 +1,13 @@
+[package]
+name = "life2"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+jemallocator = "0.3.2"
+
+[profile.release]
+debug = true
+lto = "fat"
+codegen-units = 1
+panic = "abort"

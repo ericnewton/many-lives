@@ -10,13 +10,17 @@ else
   LIBS=-lstdc++
 endif
 
-OPTFLAGS=-O3
+OPTFLAGS=-O2
 DEBUGFLAGS=-g
 CXXFLAGS= $(WARNFLAGS) $(OPTFLAGS) $(DEBUGFLAGS)
+
+all: life life2
 
 life: life.cpp Makefile
 	$(CXX) $(CXXFLAGS) -o $@ $< $(LIBS)
 
+life2: life2.cpp Makefile
+	$(CXX) $(CXXFLAGS) -o $@ $< $(LIBS)
 
 clean:
 	rm -f life
