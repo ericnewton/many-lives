@@ -60,12 +60,12 @@ Here are some numbers from my laptop, a 2020 M1 Macbook. The number
 provided here is generations per second for a particular pattern to
 run for 1000 generations.
 
-Language     | Generations/sec (m1 mac) | AMD Ryzen 7 5700U
+Language     | Generations/sec (m1 mac) | AMD Ryzen 7 5700U | Raspberry 5
 ------------ | ------------- | ------------ 
-C            | 20493  | 56679
+C            | 20493  | 56679 | 32412
 C#           |  1049  |  1590
 C++          |  9832  |  9226
-C++ (2)      |  xxxx  | 18343
+C++ (2)      |  xxxx  | 18343 | 11189
 Clojure      |  1438  |   582
 Common Lisp  |  4089  |  5385
 Elixir       |  1400  |  1095
@@ -84,8 +84,8 @@ Python (c-python 3.12) |  3279 | 1566
 Python (jython) |  1287 | 558
 Racket       |  1439 |  922
 Ruby         |   411 |  231
-Rust         |  6506 | 9886
-Rust (rewrite) |  ???? | 36732
+Rust         |  6506 | 9886 | 
+Rust (rewrite) |  ???? | 36732 | 20132
 Scala        |  9345 | 7518
 Scheme (guile-2.2)|  313 | 1037
 Scheme (guile-3.0)|  |  809
@@ -95,6 +95,7 @@ Sql-postgres |  1265 |   200
 Swift        |  1804 |  2480
 Typed Racket |  1289 |   874
 Zig          | 11764 | 12196
+Zig (v2)     | xxxxx | 27777
 
 The reported value is the second fastest of 5 runs. In most cases this
 was also the fastest value as well.

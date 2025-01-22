@@ -4,7 +4,6 @@
  * simple C version.
  */
 
-
 use std::collections::HashSet;
 use std::collections::HashMap;
 use std::thread::sleep;
