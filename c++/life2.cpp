@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
     {0, 0}, {0, 1}, {1, 1}, {-1, 0}, {0, -1}
   };
   const auto generations = 1000;
-  const auto showWork = false;
+  const auto showWork = argc > 1;
   const auto times = 5;
   const auto human_speed = chrono::milliseconds(1000 / 30);
   for (int time = 0; time < times; time++) {
