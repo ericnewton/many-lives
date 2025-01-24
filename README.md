@@ -64,7 +64,7 @@ Language     | Generations/sec (m1 mac) | AMD Ryzen 7 5700U | Raspberry 5
 ------------ | ------------- | ------------ 
 C            | 20493  | 56679 | 32412
 C#           |  1049  |  1590
-C++          |  9832  |  9226
+C++          |  9832  |  9226 |  5329
 C++ (2)      |  xxxx  | 18343 | 11189
 Clojure      |  1438  |   582
 Common Lisp  |  4089  |  5385
@@ -95,7 +95,7 @@ Sql-postgres |  1265 |   200
 Swift        |  1804 |  2480
 Typed Racket |  1289 |   874
 Zig          | 11764 | 12196
-Zig (v2)     | xxxxx | 27777
+Zig (v2)     | xxxxx | 40000 | 18518
 
 The reported value is the second fastest of 5 runs. In most cases this
 was also the fastest value as well.

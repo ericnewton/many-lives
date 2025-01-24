@@ -48,6 +48,7 @@ const neighborOffsets = [_]Offset{
 
 fn nextGeneration(live: LiveSet) !LiveSet {
     var counts = std.AutoHashMap(Coord, u8).init(allocator);
+    defer counts.deinit();
     try counts.ensureTotalCapacity(live.count() * 8);
     {
         var iter = live.keyIterator();
