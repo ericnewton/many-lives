@@ -67,7 +67,7 @@ Language          | Generations/sec (m1 mac) | AMD Ryzen 7 5700U | Raspberry 5
 C                 | 20493  | 56679 | 32412
 C#                |  1049  |  1590
 C++               |  9832  |  9226 |  5329
-C++ (2)           |  xxxx  | 18343 | 11189
+C++ (v2)          |  xxxx  | 18343 | 11189
 Clojure           |  1438  |   582
 Common Lisp       |  4089  |  5385
 Elixir            |  1400  |  1095
@@ -78,7 +78,7 @@ Janet             |   773  |   462
 Janet(2)          |  1208  |
 Janet(3)          |  2316  |
 Java              |  5128  |  5000
-Java (v2)         |  5128  | 24390 |
+Java (v2)         |  xxxx  | 27027 |
 Javascript        |   359  |   160
 Kotlin            |  4975  |  5434
 Nim               |  5761  |  6585
