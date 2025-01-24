@@ -56,9 +56,11 @@ implementations faster.
 I also wanted to see how one might run computations in parallel, and
 what effect that would have the code and the performance.
 
-Here are some numbers from my laptop, a 2020 M1 Macbook. The number
-provided here is generations per second for a particular pattern to
-run for 1000 generations.
+Here are some numbers from several personal computers, a 2020 M1
+Macbook, an inexpensive NUC and a RaspberryPi 5. The number provided
+here is generations per second for a [particular
+pattern](https://conwaylife.com/wiki/R-pentomino) to run for 1000
+generations.
 
 Language          | Generations/sec (m1 mac) | AMD Ryzen 7 5700U | Raspberry 5
 ------------      | ------------- | ------------ 
@@ -76,6 +78,7 @@ Janet             |   773  |   462
 Janet(2)          |  1208  |
 Janet(3)          |  2316  |
 Java              |  5128  |  5000
+Java (v2)         |  5128  | 24390 |
 Javascript        |   359  |   160
 Kotlin            |  4975  |  5434
 Nim               |  5761  |  6585
@@ -95,10 +98,10 @@ Sql-postgres      |  1265 |   200
 Swift             |  1804 |  2480
 Typed Racket      |  1289 |   874
 Zig               | 11764 | 12196
-Zig (v2)          | xxxxx | 40000 | 18518
+Zig (v2)          | xxxxx | 40000 | 25000
 
-The reported value is the second fastest of 5 runs. In most cases this
-was also the fastest value as well.
+The reported value is the second fastest of 5 or more runs. In most
+cases this was also the fastest value as well.
 
 *OMG, Haskell is a pain to benchmark. The reported value is an
 average of 5 runs.*
