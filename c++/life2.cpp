@@ -57,8 +57,8 @@ unique_ptr<CellSet> nextGeneration(const CellSet & board) {
   unordered_map<Cell, unsigned, Hash> counts(board.size() * 2);
   for (auto cell : board) {
     for (auto offsets : OFFSETS) {
-      Cell offset(cell.x + offsets.first, cell.y + offsets.second);
-      counts[offset]++;
+      Cell neighbor(cell.x + offsets.first, cell.y + offsets.second);
+      counts[neighbor]++;
     }
   }
   unique_ptr<CellSet> result(new CellSet(counts.size()));
