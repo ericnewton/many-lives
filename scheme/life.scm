@@ -1,4 +1,5 @@
 ; moved imports into the command-line invocation
+(import (srfi :1 lists))
 
 (define (fmt . args)
   (display (apply format #f args)))

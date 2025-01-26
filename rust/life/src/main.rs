@@ -8,7 +8,7 @@ use std::cmp::max;
 #[global_allocator]
 static GLOBAL: jemallocator::Jemalloc = jemallocator::Jemalloc;
 
-type Coord = (i32, i32);
+type Coord = (isize, isize);
 type LiveSet = HashSet<Coord>;
 const GENERATIONS: i32 = 1000;
 const SHOW_WORK: bool = false;
@@ -107,7 +107,7 @@ fn next(board: Board) -> Board {
 
 type Corner = Coord;
 type BoundingBox = (Corner, Corner);
-const MAX_MIN: Corner = (i32::MAX, i32::MIN);
+const MAX_MIN: Corner = (isize::MAX, isize::MIN);
 const TINY_BOX: BoundingBox = (MAX_MIN, MAX_MIN);
 
 fn bbox(live_set: &LiveSet) -> BoundingBox {

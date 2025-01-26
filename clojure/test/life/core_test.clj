@@ -1,6 +1,7 @@
 (ns life.core-test
   (:require [clojure.test :refer :all]
-            [life.rle :as rle]))
+            [life.rle :as rle]
+            [life.core :as life]))
 
 (def r-pentomino (str
                    "#N R-pentomino\n"
@@ -20,8 +21,27 @@
 (deftest rle-to-live-cells
   "Convert the run-length encoded pattern data into a list of live cells and compare"
   (testing "some constant patterns from the internet"
-    (is (= #{'(-2 2) '(0 1) '(-3 0) '(-2 0) '(1 0) '(2 0) '(3 0)} (set (rle/rle acorn)))
+    (is (= #{'(-2 2) '(0 1) '(-3 0) '(-2 0) '(1 0) '(2 0) '(3 0)} (rle/rle acorn))
         "acorn value")
     (is (= #{'(0 0) '(0 1) '(1 1) '(-1, 0) '(0, -1)} (set (rle/rle r-pentomino)))
         "r-pentomino value")))
+
+(def g1
+  (let [acorn (rle/rle acorn)
+        board (life/make-board acorn)
+        x (print (:alive board))]
+    x))
         
+(deftest life-generation
+  "execute a some generations of life and check the results"
+  (testing "a couple generations of acorn"
+    (is (= (7 8)
+           (let [acorn (rle/rle acorn)
+                 board (life/make-board acorn)
+                 x (life/print-board board)
+                 board (life/next-generation board)
+                 g1 (count (:alive board))
+                 board (life/next-generation board)
+                 g2 (count (:alive board))]
+                 (g1 g2))
+           "live count"))))

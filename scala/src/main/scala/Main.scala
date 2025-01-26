@@ -79,12 +79,12 @@ private def nextGeneration(board : Board) : Board =
   new Board(alive, updates)
 
 @main def life: Unit =
-  var board = new Board(Set(), r_pentomino.map(live))
   val generations = 1000
   val showWork = false
   val times = 5
   val humanAnimationSpeedMillis = 1000 / 30;
   for (time <- 0 to times)
+    var board = new Board(Set(), r_pentomino.map(live))
     val start = System.currentTimeMillis()
     for (i <- 0 to generations)
       board = nextGeneration(board)

@@ -28,7 +28,7 @@
          [(+ x xoffset) (+ y yoffset)]))
      neighbor-offsets)))
 
-; returns the coordiants and their neighbors
+; returns the coordinates and their neighbors
 (defn- consider [coords]
   (into #{} (comp (mapcat eight-neighbor-coords)) coords))
 
@@ -58,7 +58,7 @@
       :else (if (alive coord) [[:die coord]] []))))
 
 ; compute the next board from the current board
-(defn- next-generation [board]
+(defn next-generation [board]
   (let [changes (into [] (map second) (:changes board))
         coords (consider changes)
         newboard (apply-changes board)
@@ -73,7 +73,7 @@
          [[(apply min x's) (apply min y's)]
           [(apply max x's) (apply max y's)]])))
 
-(defn- print-board [board]
+(defn print-board [board]
   (let [[[x1 y1][x2 y2]] (compute-bbox board)]
     (doseq [y (range y2 (dec y1) -1)]
       (doseq [x (range x1 (inc x2))]
@@ -103,7 +103,7 @@
   nil)
 
 
-(defn- make-board [alive]
+(defn make-board [alive]
   (let [birth (map (fn [coord] [:birth coord]) alive)
         death (map (fn [coord] [:die coord]) (difference (consider alive) alive))]
     (Board. #{} (concat birth death))))
