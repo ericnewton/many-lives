@@ -2,110 +2,97 @@
 #include <vector>
 
 namespace ah {
-  static const size_t primes[] = {
+  
+  typedef std::size_t size_t;
+  
+  const size_t EMPTY_ENTRY_MARKER = 0;
+  const std::vector<size_t> primes = {
     37, 79, 131, 181, 239, 293, 359, 421, 821, 953
   };
-				
-  template <typename K, typename V, class H> class ArrayHash {
+
+  template <typename K, typename V, class H>
+  class ArrayHash {
   private:
-    static const size_t SENTINAL = 0;
-    H hasher;
+    H _hasher;
+    
     struct KV {
-      size_t hash;
-      K key;
-      V value;
-      KV(size_t h, const K & k, const V & v) : hash(h), key(k), value(v) {}
-      KV() : hash(SENTINAL) {}
+      size_t _hash;
+      K _key;
+      V _value;
+      KV(size_t h, const K & k, const V & v) : _hash(h), _key(k), _value(v) {}
+      KV() : _hash(EMPTY_ENTRY_MARKER) {}
     };
 
     static size_t round_up_size(size_t minimum) {
-      for (size_t i = 0; i < sizeof(primes)/sizeof(primes[0]); i++) {
-	if (primes[i] > minimum) {
-	  return primes[i];
+      for (auto prime : primes) {
+	if (prime > minimum) {
+	  return prime;
 	}
       }
       return minimum * 2 + 1;
     }
     
     size_t _size = 0;
-    std::vector<KV> array;
+    std::vector<KV> _array;
 
     size_t hash(const K & key) const {
-      size_t result = hasher(key);
-      if (result == SENTINAL) {
+      size_t result = _hasher(key);
+      if (result == EMPTY_ENTRY_MARKER) {
 	result++;
       }
       return result;
     }
 
     size_t find(const K & key) const {
-      if (array.empty()) {
-	return 0;
-      }
       size_t h = hash(key);
-      size_t location = h % array.size();
-      for (size_t i = location; i < array.size(); i++) {
-	const KV & kv = array.at(i);
-	if (kv.hash == SENTINAL || (kv.hash == h && kv.key == key)) {
+      size_t location = h % _array.size();
+      for (size_t i = location; i < _array.size(); i++) {
+	const KV & kv = _array.at(i);
+	if (kv._hash == EMPTY_ENTRY_MARKER || (kv._hash == h && kv._key == key)) {
 	    return i;
 	}
       }
       for (size_t i = 0; i < location; i++) {
-	const KV & kv = array.at(i);
-	if (kv.hash == SENTINAL || (kv.hash == h && kv.key == key)) {
+	const KV & kv = _array.at(i);
+	if (kv._hash == EMPTY_ENTRY_MARKER || (kv._hash == h && kv._key == key)) {
 	    return i;
 	}
       }
-      return array.size();
+      return _array.size();
     }
 
   public:
-    void insert(const K & key, const V & value) {
-      size_t index = find(key);
-      if (index == array.size()) {
-	// future: rehash
-	throw std::runtime_error("Unable to make room for key");
-      }
-      KV & kv = array.at(index);
-      if (kv.hash == SENTINAL) {
-	kv = KV(hash(key), key, value);
-	_size++;
-      } else {
-	kv.value = value;
-      }
-    }
-    
     V & operator[](const K & key) {
       size_t index = find(key);
-      if (index == array.size()) {
+      if (index == _array.size()) {
 	throw std::runtime_error("Unable to make room for [key]");
       }
-      KV & kv = array.at(index);
-      if (kv.hash == SENTINAL) {
+      KV & kv = _array.at(index);
+      if (kv._hash == EMPTY_ENTRY_MARKER) {
 	kv = KV(hash(key), key, V());
 	_size++;
       }
-      return kv.value;
+      return kv._value;
     }
     
     const V & operator[](const K & key) const {
       size_t index = find(key);
-      if (index == array.size()) {
+      if (index == _array.size()) {
 	throw std::runtime_error("no such key");
       }
-      KV & kv = array.at(index);
-      if (kv.hash == SENTINAL) {
+      KV & kv = _array.at(index);
+      if (kv.hash == EMPTY_ENTRY_MARKER) {
 	throw std::exception("no such key");
       }
     }
 
     size_t count(const K & key) const {
       size_t index = find(key);
-      if (index == array.size()) {
+      if (index == _array.size()) {
 	return 0;
       }
-      const KV & kv = array.at(index);
-      if (kv.hash == SENTINAL) {
+      const KV & kv = _array.at(index);
+      if (kv._hash == EMPTY_ENTRY_MARKER) {
 	return 0;
       }
       return 1;
@@ -115,48 +102,44 @@ namespace ah {
       return _size;
     }
 
-    ArrayHash(size_t capacity) : array(round_up_size(capacity)) {}
+    ArrayHash(size_t capacity) : _array(round_up_size(capacity)) {}
+    
     ArrayHash(const ArrayHash &other)
     : _size(round_up_size(other._size))
-      , array(other.array)
+      , _array(other._array)
       {
       }
     ~ArrayHash() {}
 
     class iterator {
     private:
-      const ArrayHash *container;
-      size_t i;
+      const ArrayHash * _container;
+      size_t _index;
     public:
       iterator(const ArrayHash* ah, size_t offset)
-	: container(ah),
-	  i(offset)
+	: _container(ah),
+	  _index(offset)
 	{
 	}
-      iterator(const iterator & other) 
-	: container(other.container),
-	  i(other.i)
-	  {
-	  }
       bool operator!=(iterator & other) {
-	return !(i == other.i && container == other.container);
+	return !(_index == other._index && _container == other._container);
       }
       void operator++() {
-	for (i++; i < container->array.size(); i++) {
-	  if (container->array.at(i).hash != SENTINAL) {
+	for (_index++; _index < _container->_array.size(); _index++) {
+	  if (_container->_array.at(_index)._hash != EMPTY_ENTRY_MARKER) {
 	    break;
 	  }
 	}
       }
       std::pair<K, V> operator*() {
-	const KV & kv = container->array.at(i);
-	return std::pair(kv.key, kv.value);
+	const KV & kv = _container->_array.at(_index);
+	return std::pair(kv._key, kv._value);
       }
     };
 
     iterator begin() const {
-      for (size_t i = 0; i < array.size(); i++) {
-	if (array.at(i).hash != SENTINAL) {
+      for (size_t i = 0; i < _array.size(); i++) {
+	if (_array.at(i)._hash != EMPTY_ENTRY_MARKER) {
 	  return iterator(this, i);
 	}
       }
@@ -164,7 +147,7 @@ namespace ah {
     }
 
     iterator end() const {
-      return iterator(this, array.size());
+      return iterator(this, _array.size());
     }
   };
 }

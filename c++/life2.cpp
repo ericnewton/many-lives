@@ -1,10 +1,8 @@
 #include <iostream>
-// #include <unordered_map>
+//#include <unordered_map>
 #include "array_hash.h"
 #include <thread>
 #include <chrono>
-
-using namespace std;
 
 namespace life {
 
@@ -19,7 +17,7 @@ struct Cell {
 };
 
 // for debugging
-ostream & operator<<(ostream &ostr, const Cell & p) {
+std::ostream & operator<<(std::ostream &ostr, const Cell & p) {
   ostr << "(" << p.x << ", " << p.y << ")";
   return ostr;
 }
@@ -31,36 +29,38 @@ struct Hash {
 };
 
   //typedef unordered_map<Cell, bool, Hash> CellSet;
+  //typedef unordered_map<Cell, unsigned, Hash> CellCount;
 typedef ah::ArrayHash<Cell, bool, Hash> CellSet;
+typedef ah::ArrayHash<Cell, unsigned, Hash> CellCount;
 
 void clearScreen() {
   // clear screen
-  cout << char(27) << "[2J";
+  std::cout << char(27) << "[2J";
   // move to top-left corner
-  cout << char(27) << "[;H";
+  std::cout << char(27) << "[;H";
 }
 
 void printCellSet(const CellSet & alive) {
   for (auto y = 12; y > -12; y--) {
     for (auto x = -40; x < 40; x++) {
-      cout << (alive.count(Cell(x, y)) ? '@' : ' ');
+      std::cout << (alive.count(Cell(x, y)) ? '@' : ' ');
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 }
 
-const pair<int, int> p(int first, int second) {
-  return pair<int, int>(first, second);
+const std::pair<int, int> p(int first, int second) {
+  return std::pair<int, int>(first, second);
 }
-const pair<int, int> OFFSETS[] = {
+const std::pair<int, int> OFFSETS[] = {
   p(-1, 1),  p(0,  1), p(1,  1),
   p(-1, 0),            p(1,  0),
   p(-1, -1), p(0, -1), p(1, -1)
 };
 
 // compute a new liveSet from the old liveSet
-unique_ptr<CellSet> nextGeneration(const CellSet & liveSet) {
-  ah::ArrayHash<Cell, unsigned, Hash> counts(liveSet.size() * 8);
+std::unique_ptr<CellSet> nextGeneration(const CellSet & liveSet) {
+  CellCount counts(liveSet.size() * 8);
   //unordered_map<Cell, unsigned, Hash> counts(liveSet.size() * 8);
   for (auto cell : liveSet) {
     for (auto offsets : OFFSETS) {
@@ -68,7 +68,7 @@ unique_ptr<CellSet> nextGeneration(const CellSet & liveSet) {
       counts[offset]++;
     }
   }
-  unique_ptr<CellSet> result(new CellSet(counts.size()));
+  std::unique_ptr<CellSet> result(new CellSet(counts.size()));
   for (auto entry : counts) {
     if (entry.second == 3 || (entry.second == 2 && liveSet.count(entry.first) > 0)) {
       (*result)[entry.first] = true;
@@ -94,26 +94,23 @@ int main(int argc, char **argv) {
   const auto generations = 1000;
   const auto showWork = argc > 1;
   const auto times = 5;
-  const auto human_speed = chrono::milliseconds(1000 / 30);
-  try {
-    for (int time = 0; time < times; time++) {
-      unique_ptr<CellSet> board(new CellSet(r_pentomino));
-      auto start = std::chrono::system_clock::now();
-      for(int i = 0; i < generations; i++) {
-	if (showWork) {
-	  clearScreen();
-	  printCellSet(*board);
-	  this_thread::sleep_for(human_speed);
-	}
-	board = nextGeneration(*board);
+  const auto human_speed = std::chrono::milliseconds(1000 / 30);
+  
+  for (unsigned time = 0; time < times; time++) {
+    std::unique_ptr<CellSet> board(new CellSet(r_pentomino));
+    auto start = std::chrono::system_clock::now();
+    for(unsigned i = 0; i < generations; i++) {
+      if (showWork) {
+	clearScreen();
+	printCellSet(*board);
+	std::this_thread::sleep_for(human_speed);
       }
-      auto end = std::chrono::system_clock::now();
-      auto diff_us = chrono::duration_cast<chrono::microseconds>(end - start);
-      auto diff_s = diff_us.count() / 1000. / 1000.;
-      cout << (generations / diff_s) << " generations / sec" << endl;
+      board = nextGeneration(*board);
     }
-  } catch (runtime_error & e) {
-    cout << "Error: " << e.what() << endl;
+    auto end = std::chrono::system_clock::now();
+    auto diff_us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    auto diff_s = diff_us.count() / 1000. / 1000.;
+    std::cout << (generations / diff_s) << " generations / sec" << std::endl;
   }
   return 0;
 }

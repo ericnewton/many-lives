@@ -1,4 +1,3 @@
-# using auto, so turn off warnings about using c++11 keyword
 HOST=$(shell uname)
 
 ifeq ($(HOST), Darwin)
@@ -25,4 +24,4 @@ life2: life2.cpp array_hash.h Makefile
 	$(CXX) $(CXXFLAGS) -o $@ $< $(LIBS)
 
 clean:
-	rm -f life
+	rm -f life life2
