@@ -78,8 +78,8 @@ Haskell           |  1653  |  1416 | |
 Janet             |   773  |   462 | |
 Janet(2)          |  1208  | | |
 Janet(3)          |  2316  | | |
-Java              |  5128  |  5000 | |
-Java (v2)         | 15873  | 27027 | 10989
+Java              |  5128  |  5000 |  2487 |
+Java (v2)         | 15873  | 27027 | 10989 |
 Javascript        |   359  |   160 | |
 Kotlin            |  4975  |  5434 | |
 Nim               |  5761  |  6585 | |
@@ -88,7 +88,7 @@ Python (c-python 3.12) |  3279 | 1566 | |
 Python (jython)   |  1287 |   558 | |
 Racket            |  1439 |   922 | |
 Ruby              |   411 |   231 | |
-Rust              |  6506 |  9886 | |
+Rust              |  6506 |  9886 |  5273 |
 Rust (rewrite)    | 22240 | 36732 | 20132 |
 Scala             |  9345 |  7518 | |
 Scheme (guile-2.2)|   313 |  1037 | |
@@ -98,7 +98,7 @@ Scheme (gerbil)   |   504 |   566 | |
 Sql-postgres      |  1265 |   200 | |
 Swift             |  1804 |  2480 | |
 Typed Racket      |  1289 |   874 | |
-Zig               | 11764 | 12196 | |
+Zig               | 11764 | 12196 |  7352 |
 Zig (v2)          | 26315 | 40000 | 25000 |
 
 The reported value is the second fastest of 5 or more runs. In most
