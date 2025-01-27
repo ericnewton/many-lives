@@ -33,12 +33,18 @@ struct Hash {
   }
 };
 
+  // slow
   //typedef unordered_map<Cell, bool, Hash> CellSet;
   //typedef unordered_map<Cell, unsigned, Hash> CellCount;
+  // faster
+  //typedef google::sparse_hash_map<Cell, unsigned, Hash> CellCount;
+  //typedef google::sparse_hash_map<Cell, bool, Hash> CellSet;
+  // faster still
+  //typedef google::dense_hash_map<Cell, unsigned, Hash> CellCount;
+  //typedef google::dense_hash_map<Cell, bool, Hash> CellSet;
+  // fastest
   typedef ah::ArrayHash<Cell, bool, Hash> CellSet;
   typedef ah::ArrayHash<Cell, unsigned, Hash> CellCount;
-  //typedef google::sparse_hash_map<Cell, bool, Hash> CellSet;
-  //typedef google::sparse_hash_map<Cell, unsigned, Hash> CellCount;
 
 void clearScreen() {
   // clear screen

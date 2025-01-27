@@ -6,10 +6,7 @@ namespace ah {
   typedef std::size_t size_t;
   
   const size_t EMPTY_ENTRY_MARKER = 0;
-  const std::vector<size_t> primes = {
-    37, 79, 131, 181, 239, 293, 359, 421, 821, 953
-  };
-
+  
   template <typename K, typename V, class H>
   class ArrayHash {
   private:
@@ -23,71 +20,79 @@ namespace ah {
       KV() : _hash(EMPTY_ENTRY_MARKER) {}
     };
 
+    // returns a number with all bits on that covers the minimum size
+    // so we can use bitwise and (&) for hashing
     static size_t round_up_size(size_t minimum) {
-      for (auto prime : primes) {
-	if (prime > minimum) {
-	  return prime;
-	}
+      auto i = 0;
+      while (minimum != 0) {
+	minimum >>= 1;
+	i++;
       }
-      return minimum * 2 + 1;
+      return (1 << (i + 1)) - 1;
     }
     
     size_t _size = 0;
     std::vector<KV> _array;
 
     size_t hash(const K & key) const {
-      size_t result = _hasher(key);
+      auto result = _hasher(key);
       if (result == EMPTY_ENTRY_MARKER) {
 	result++;
       }
       return result;
     }
 
-    size_t find(const K & key) const {
-      size_t h = hash(key);
-      size_t location = h % _array.size();
+    size_t find(size_t hash, const K & key) const {
+      auto location = hash & _array.size();
       for (size_t i = location; i < _array.size(); i++) {
-	const KV & kv = _array.at(i);
-	if (kv._hash == EMPTY_ENTRY_MARKER || (kv._hash == h && kv._key == key)) {
+	const auto & kv = _array.at(i);
+	if (kv._hash == EMPTY_ENTRY_MARKER ||
+	    (kv._hash == hash && kv._key == key)) {
 	    return i;
 	}
       }
       for (size_t i = 0; i < location; i++) {
-	const KV & kv = _array.at(i);
-	if (kv._hash == EMPTY_ENTRY_MARKER || (kv._hash == h && kv._key == key)) {
+	const auto & kv = _array.at(i);
+	if (kv._hash == EMPTY_ENTRY_MARKER ||
+	    (kv._hash == hash && kv._key == key)) {
 	    return i;
 	}
       }
       return _array.size();
     }
 
+    size_t find(const K & key) const {
+      return find(hash(key), key);
+    }
+      
   public:
     V & operator[](const K & key) {
-      size_t index = find(key);
+      auto h = hash(key);
+      auto index = find(h, key);
       if (index == _array.size()) {
 	throw std::runtime_error("Unable to make room for [key]");
       }
-      KV & kv = _array.at(index);
+      auto & kv = _array.at(index);
       if (kv._hash == EMPTY_ENTRY_MARKER) {
-	kv = KV(hash(key), key, V());
+	kv = KV(h, key, V());
 	_size++;
       }
       return kv._value;
     }
     
     const V & operator[](const K & key) const {
-      size_t index = find(key);
+      auto index = find(key);
       if (index == _array.size()) {
 	throw std::runtime_error("no such key");
       }
-      KV & kv = _array.at(index);
+      auto & kv = _array.at(index);
       if (kv.hash == EMPTY_ENTRY_MARKER) {
 	throw std::exception("no such key");
       }
     }
 
     size_t count(const K & key) const {
-      size_t index = find(key);
+      auto index = find(key);
       if (index == _array.size()) {
 	return 0;
       }
@@ -109,7 +114,6 @@ namespace ah {
       , _array(other._array)
       {
       }
-    ~ArrayHash() {}
 
     class iterator {
     private:
