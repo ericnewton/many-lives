@@ -62,13 +62,18 @@ here is generations per second for a [particular
 pattern](https://conwaylife.com/wiki/R-pentomino) to run for 1000
 generations.
 
-Language          | Generations/sec (m1 mac) | AMD Ryzen 7 5700U | RaspberryPi 5
+Generations/sec 
+===
+
+Language          | M1 mac | AMD Ryzen 7 5700U | RaspberryPi 5
 ------------      | ------------- | ------------ | ------------ 
-C                 | 20493  | 56679 | 32412 |
+C                 | 36734  | 56679 | 32412 |
 C#                |  1049  |  1590 | |
 C++               |  9832  |  9226 |  5329 |
 C++ (v2)          | 15761  | 18343 | 11189 |
-C++ (v2.5)        | 57035  | 42131 | 29933 |
+C++ (v2.5)        | 35122  | 42131 | 29933 |
+C++ (v2.5, dense) | 30485  |       | |
+C++ (v2.5, sparse)|  7902  |       | |
 Clojure           |  1438  |   582 | |
 Common Lisp       |  4089  |  5385 | |
 Elixir            |  1400  |  1095 | |

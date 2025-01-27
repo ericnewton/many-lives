@@ -133,7 +133,7 @@ namespace ah {
       }
       std::pair<K, V> operator*() {
 	const KV & kv = _container->_array.at(_index);
-	return std::pair(kv._key, kv._value);
+	return std::pair<K, V>(kv._key, kv._value);
       }
     };
 

@@ -3,16 +3,17 @@ HOST=$(shell uname)
 ifeq ($(HOST), Darwin)
   CXX=c++-14
   WARNFLAGS=-Wall
+  IFLAGS=-I/opt/homebrew/include
   LIBS=
 else
   CXX=gcc
   WARNFLAGS=-Wall
   LIBS=-lstdc++
+  IFLAGS=
 endif
 
 OPTFLAGS=-O2
 DEBUGFLAGS=-g
-IFLAGS=
 CXXFLAGS= $(WARNFLAGS) $(OPTFLAGS) $(DEBUGFLAGS) $(IFLAGS)
 
 all: life life2
