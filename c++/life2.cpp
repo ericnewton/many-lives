@@ -34,11 +34,11 @@ struct Hash {
 };
 
   // slow
-  //typedef unordered_map<Cell, bool, Hash> CellSet;
-  //typedef unordered_map<Cell, unsigned, Hash> CellCount;
-  // faster
   //typedef google::sparse_hash_map<Cell, unsigned, Hash> CellCount;
   //typedef google::sparse_hash_map<Cell, bool, Hash> CellSet;
+  // faster
+  //typedef unordered_map<Cell, bool, Hash> CellSet;
+  //typedef unordered_map<Cell, unsigned, Hash> CellCount;
   // faster still
   //typedef google::dense_hash_map<Cell, unsigned, Hash> CellCount;
   //typedef google::dense_hash_map<Cell, bool, Hash> CellSet;
@@ -75,7 +75,6 @@ const std::pair<int, int> OFFSETS[] = {
 std::unique_ptr<CellSet> nextGeneration(const CellSet & liveSet) {
   CellCount counts(liveSet.size() * 8);
   // counts.set_empty_key(EMPTY_KEY);
-  //unordered_map<Cell, unsigned, Hash> counts(liveSet.size() * 8);
   for (auto cell : liveSet) {
     for (auto offsets : OFFSETS) {
       Cell offset(cell.first.x + offsets.first, cell.first.y + offsets.second);

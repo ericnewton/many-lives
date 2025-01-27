@@ -71,9 +71,9 @@ C                 | 36734  | 56679 | 32412 |
 C#                |  1049  |  1590 | |
 C++               |  9832  |  9226 |  5329 |
 C++ (v2)          | 15761  | 18343 | 11189 |
-C++ (v2.5)        | 35122  | 42131 | 29933 |
-C++ (v2.5, dense) | 30485  |       | |
-C++ (v2.5, sparse)|  7902  |       | |
+C++ (v2.5, sparse)|  7902  | 13635 |  8074 |
+C++ (v2.5, dense) | 30485  | 44393 | 27901 |
+C++ (v2.5, custom)| 40773  | 57640 | 36983 |
 Clojure           |  1438  |   582 | |
 Common Lisp       |  4089  |  5385 | |
 Elixir            |  1400  |  1095 | |
@@ -94,7 +94,7 @@ Python (jython)   |  1287 |   558 | |
 Racket            |  1439 |   922 | |
 Ruby              |   411 |   231 | |
 Rust              |  6506 |  9886 |  5273 |
-Rust (rewrite)    | 22240 | 36732 | 20132 |
+Rust (v2)         | 22240 | 36732 | 20132 |
 Scala             |  9345 |  7518 | |
 Scheme (guile-2.2)|   313 |  1037 | |
 Scheme (guile-3.0)|       |   809 | |
@@ -1145,3 +1145,43 @@ comments I'd read recently.
 I heard chez scheme is fast, but I could not work out how to get srfi
 functions available for it.
 
+C++, Rust and Java Revisited
+===
+
+I was reading the C implementation of hash tables in the Janet
+implementation and ran into a bunch of interesting techniques. I'll
+list them here without much in the way of explanation:
+
+* no buckets of linked lists
+* resizable record to keep metadata and array in the same memory block
+* RobinHood hashing
+
+After banging out the highly procedural style C version using a
+faster (custom) hash table, the speed difference between C++ and C was
+eye-opening.
+
+In fact, the Java version was sometimes faster than the C++ version.
+Digging into the implementation of `unordered_map`, I see it's using
+the same "bucket and linked-list" hash table I originally used for C.
+I had already discovered that approach destroys locality and CPU
+caches.
+
+So I went looking for a better C++ hash table. I stumbled onto [this
+talk](https://www.youtube.com/watch?v=M2fKMP47slQ), which told me more
+about hash tables than I ever wanted to know. As suggested in the
+talk, I gave Google's `dense_hash_map` a chance. It was faster, but
+not nearly as fast as the C map. So I sat down and wrote my own C++
+hashmap container.
+
+My hashmap container is simple, doesn't support `erase` but it is
+source-compatible with `unordered_map` for this little use-case.
+Trying to read and understand the provided STL `unordered_map` or even
+`vector` is very hard. My little container class doesn't follow most
+of the conventions used in those header files because I'm just not
+smart enough to do it.
+
+Kudos to Rust, Java and Zig for providing pretty nice hashmap
+performance out-of-the-box. I created a second version (V2) of the
+game of life for each of these languages which uses a blatantly
+procedural style more commonly used with those languages. The
+performance is very good.
