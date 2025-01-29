@@ -13,16 +13,16 @@ static const bool SHOW_WORK = false;
 #define COUNT_OF(arr) (sizeof(arr)/sizeof(0[arr]))
 
 typedef struct Coord {
-  int x;
-  int y;
+  short x;
+  short y;
 } Coord;
 
-static bool coord_equals(const Coord *a, const Coord *b) {
-  return a->x == b->x && a->y == b->y;
+static bool coord_equals(Coord a, const Coord b) {
+  return a.x == b.x && a.y == b.y;
 }
 
-static size_t coord_hash(const Coord * val) {
-  return val->x * 97 + val->y;
+static size_t coord_hash(const Coord val) {
+  return val.x * 97 + val.y;
 }
 
 typedef struct Entry {
@@ -30,16 +30,15 @@ typedef struct Entry {
   int value;
 } Entry;
 
-static bool isempty(const Entry *val) {
-  return val->value == -1;
+static bool isempty(const Entry val) {
+  return val.value == -1;
 }
 
 /*
  * A hash map implementation. 
  */
-#define CAPACITY 1999
+#define CAPACITY 2047
 typedef struct {
-  size_t capacity;
   Entry entries[CAPACITY];
   size_t count;
 } HashMap;
@@ -50,9 +49,8 @@ static HashMap *hash_map_create() {
     perror(NULL);
     return NULL;
   }
-  result->capacity = CAPACITY;
   result->count = 0;
-  for (size_t i = 0; i < result->capacity; i++) {
+  for (size_t i = 0; i < CAPACITY; i++) {
     result->entries[i].value = -1;
   }
   return result;
@@ -62,24 +60,24 @@ static void hash_map_free(HashMap *map) {
   free(map);
 }
 
-static int find(const HashMap *map, const Coord * key) {
+static int find(const HashMap *map, const Coord key) {
   size_t hash = coord_hash(key);
-  size_t index = hash % map->capacity;
-  for (int i = index; i < map->capacity; i++) {
+  size_t index = hash & CAPACITY;
+  for (int i = index; i < CAPACITY; i++) {
     const Entry * p = map->entries + i;
-    if (isempty(p)) {
+    if (isempty(*p)) {
       return i;
     }
-    if (coord_equals(&p->key, key)) {
+    if (coord_equals(p->key, key)) {
       return i;
     }
   }
   for (int i = 0; i < index; i++) {
     const Entry * p = map->entries + i;
-    if (isempty(p)) {
+    if (isempty(*p)) {
       return i;
     }
-    if (coord_equals(&p->key, key)) {
+    if (coord_equals(p->key, key)) {
       return i;
     }
   }
@@ -87,28 +85,28 @@ static int find(const HashMap *map, const Coord * key) {
 }
   
 
-static bool hash_map_add(HashMap * map, const Coord * key) {
+static bool hash_map_add(HashMap * map, const Coord key) {
   int index = find(map, key);
   if (index < 0) {
     return false;
   }
   Entry * entry = map->entries + index;
-  if (isempty(entry)) {
-    entry->key.x = key->x;
-    entry->key.y = key->y;
+  if (isempty(*entry)) {
+    entry->key.x = key.x;
+    entry->key.y = key.y;
     entry->value = 0;
   }
   entry->value++;
   return true;
 }
 
-static int hash_map_get(const HashMap *map, const Coord *key) {
+static int hash_map_get(const HashMap *map, const Coord key) {
   int index = find(map, key);
   if (index < 0) {
     return 0;
   }
   const Entry * entry = map->entries + index;
-  if (isempty(entry)) {
+  if (isempty(*entry)) {
     return 0;
   }
   return entry->value;
@@ -122,7 +120,7 @@ static void print_board(HashMap* live_map) {
     for (int x = -40; x < 40; x++) {
       Coord coord = { x, y };
       char c = ' ';
-      if (hash_map_get(live_map, &coord) > 0) {
+      if (hash_map_get(live_map, coord) > 0) {
 	c = '@';
       }
       printf("%c", c);
@@ -140,9 +138,9 @@ static HashMap * count_neighbors(const HashMap* live_set) {
   if (!counts) {
     return NULL;
   }
-  for (int i = 0; i < live_set->capacity; i++) {
+  for (int i = 0; i < CAPACITY; i++) {
     const Entry * entry = live_set->entries + i;
-    if (isempty(entry)) {
+    if (isempty(*entry)) {
       continue;
     }
     for (int offset_x = -1; offset_x <= 1; offset_x++) {
@@ -151,7 +149,7 @@ static HashMap * count_neighbors(const HashMap* live_set) {
 	  continue;
 	}
 	Coord neighbor = { entry->key.x + offset_x, entry->key.y + offset_y };
-	bool success = hash_map_add(counts, &neighbor);
+	bool success = hash_map_add(counts, neighbor);
 	if (!success) {
 	  hash_map_free(counts);
 	  return NULL;
@@ -173,13 +171,13 @@ static HashMap* next_generation(const HashMap* live_set) {
     hash_map_free(counts);
     return NULL;
   }
-  for (int i = 0; i < counts->capacity; i++) {
+  for (int i = 0; i < CAPACITY; i++) {
     const Entry * entry = counts->entries + i;
-    if (isempty(entry)) {
+    if (isempty(*entry)) {
       continue;
     }
-    if (entry->value == 3 || (entry->value == 2 && hash_map_get(live_set, &entry->key))) {
-      if (!hash_map_add(result, &entry->key)) {
+    if (entry->value == 3 || (entry->value == 2 && hash_map_get(live_set, entry->key))) {
+      if (!hash_map_add(result, entry->key)) {
 	hash_map_free(counts);
 	hash_map_free(result);
 	return NULL;
@@ -200,7 +198,7 @@ static int run() {
     return -1;
   }
   for (size_t i = 0; i < COUNT_OF(r_pentomino); i++) {
-    if (!hash_map_add(live_set, &r_pentomino[i])) {
+    if (!hash_map_add(live_set, r_pentomino[i])) {
       hash_map_free(live_set);
       return -1;
     }
