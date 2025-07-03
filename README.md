@@ -66,8 +66,9 @@ Generations/sec
 ===
 
 Language          | M1 mac | AMD Ryzen 7 5700U | RaspberryPi 5
-------------      | ------------- | ------------ | ------------ 
-C                 | 36734  | 56679 | 32412 |
+------------      | ------------- | ------------ | ------------
+awk               |  1443  |       |       |
+C                 | 40405  | 56679 | 39048 |
 C#                |  1049  |  1590 | |
 C++               |  9832  |  9226 |  5329 |
 C++ (v2)          | 15761  | 18343 | 11189 |
@@ -76,6 +77,7 @@ C++ (v2.5, dense) | 30485  | 44393 | 27901 |
 C++ (v2.5, custom)| 40773  | 57640 | 36983 |
 Clojure           |  1438  |   582 | |
 Common Lisp       |  4089  |  5385 | |
+Common Lisp (v2)  |  4538  | | |
 Elixir            |  1400  |  1095 | |
 F#                |   806  |   628 | |
 Go                |  1923  |  1805 | |
@@ -1185,3 +1187,23 @@ performance out-of-the-box. I created a second version (V2) of the
 game of life for each of these languages which uses a blatantly
 procedural style more commonly used with those languages. The
 performance is very good.
+
+awk
+=====
+
+I've written an embarrassing amount of `awk` code in my career. I
+mostly stopped writing anything complex once I started using python in
+the mid 90s.  Now I remember why.
+
+awk basically has two data structures: strings and associative arrays
+(maps). Fortunately we can use the tricks required by javascript to
+make do with these limits.
+
+Sadly, associative arrays cannot be returned from a function, so any
+sort of functional style of programming is not possible. The inability
+to write side-effect free functions starts to add complexity. My first
+implementation had a bug because I was reusing an array without
+clearing it. These sorts of bugs just don't happen when you can scope,
+allocate and return data structures cleanly.
+
+Performance was pretty good.
