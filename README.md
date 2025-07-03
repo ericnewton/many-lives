@@ -68,6 +68,7 @@ Generations/sec
 Language          | M1 mac | AMD Ryzen 7 5700U | RaspberryPi 5
 ------------      | ------------- | ------------ | ------------
 awk               |  1443  |       |       |
+bash              |     9  |       |       |
 C                 | 40405  | 56679 | 39048 |
 C#                |  1049  |  1590 | |
 C++               |  9832  |  9226 |  5329 |
@@ -1207,3 +1208,17 @@ clearing it. These sorts of bugs just don't happen when you can scope,
 allocate and return data structures cleanly.
 
 Performance was pretty good.
+
+bash
+=====
+
+Bash is a lot like awk: only two datastructures available: an
+associative array (map) and strings.
+
+Performance is abysmal, of course. It starts off strong when there are
+fewer cells, but as the pattern expands it slows down. A lot.
+
+But, of course, this is a silly thing to do in bash. Like awk, some
+data is passed in global variables. There's just not a good way to
+pass data around because, you know, it's a shell for running other
+programs.
