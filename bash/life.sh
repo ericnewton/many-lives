@@ -24,8 +24,9 @@ tick() {
     local r
     local count
     for pair in ${!alive[@]}; do
-	x=${pair%,*}
-	y=${pair:${#x}+1:${#pair}}
+	IFS=',' ; xy=( $pair ) ; unset IFS
+	x=${xy[0]}
+	y=${xy[1]}
 	for neighbor in $(neighbors $x $y); do
 	    counts[${neighbor}]=$((${counts[${neighbor}]} + 1))
 	done
