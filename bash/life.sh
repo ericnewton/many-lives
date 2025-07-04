@@ -16,27 +16,23 @@ neighbors() {
 
 tick() {
     # compute the next generation in array "alive"
-    local -A counts
-    local -A next
-    local x
-    local y
-    local pair
-    local r
-    local count
+    local -A counts next
+    local -a xy
+    local x y pair r count
     for pair in ${!alive[@]}; do
-	IFS=',' ; xy=( $pair ) ; unset IFS
+	readarray -d "," -t xy <<< "${pair}"
 	x=${xy[0]}
 	y=${xy[1]}
 	for neighbor in $(neighbors $x $y); do
-	    counts[${neighbor}]=$((${counts[${neighbor}]} + 1))
+	    true $((counts[${neighbor}]++))
 	done
     done
-    for r in "${!counts[@]}"; do
+    for r in ${!counts[@]}; do
 	count=${counts[$r]}
 	if (( count == 3 )) then
 	   next[$r]=1
 	else
-	    if (( count == 2 )) && [ -n "${alive[$r]}" ] ; then
+	    if (( count == 2 && alive[$r] )) ; then
 		next[$r]=1
 	    fi
 	fi
@@ -67,8 +63,8 @@ life() {
     initial="$1"
     generations="$2"
     showWork="$3"
-    readarray -d " " -t pairs <<< "${initial} "
-    for pair in "${pairs[@]}"; do
+    readarray -d " " -t pairs <<< "${initial}"
+    for pair in ${pairs[@]}; do
 	alive[${pair}]="1"
     done
     for ((generation=0;$generation < $generations; generation++)); do
@@ -80,8 +76,8 @@ life() {
 }    
 
 generations=1000
-r_pentomino="0,0 0,1 1,1 -1,0 0,-1"
+r_pentomino="0,0 0,1 1,1 -1,0 0,-1 "
 start=$(date +%s)
-life "${r_pentomino}" ${generations} false
+life "${r_pentomino}" ${generations} true
 end=$(date +%s)
 echo $((generations / (end - start) )) generations per second
