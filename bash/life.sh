@@ -78,6 +78,6 @@ life() {
 generations=1000
 r_pentomino="0,0 0,1 1,1 -1,0 0,-1 "
 start=$(date +%s)
-life "${r_pentomino}" ${generations} true
+life "${r_pentomino}" ${generations} false
 end=$(date +%s)
 echo $((generations / (end - start) )) generations per second
